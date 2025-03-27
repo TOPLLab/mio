@@ -69,7 +69,7 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
                 val pos = ioElement.key.substring(1).toInt()
                 val r = ioElement.value.ushr(16) and 0xff
                 val g = ioElement.value.ushr(8) and 0xff
-                val b = ioElement.value and 0xf
+                val b = ioElement.value and 0xff
                 //println("$pos $r $g $b")
                 colors.add(Color(r, g, b))
             }
