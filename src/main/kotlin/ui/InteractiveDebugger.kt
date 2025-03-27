@@ -1,20 +1,16 @@
 package ui
 
-import debugger.ConstraintParser
-import debugger.Debugger
-import debugger.MultiverseDebugger
-import debugger.MultiverseGraph
-import debugger.PrimitiveNode
 import WasmBinary
 import com.formdev.flatlaf.extras.FlatSVGIcon
-import sourcemap.SourceMap
 import connections.Connection
+import debugger.*
 import getBinaryInfo
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rsyntaxtextarea.Theme
 import org.fife.ui.rtextarea.IconRowHeader
 import org.fife.ui.rtextarea.RTextScrollPane
+import sourcemap.SourceMap
 import woodstate.WOODDumpResponse
 import java.awt.*
 import java.awt.event.MouseEvent
@@ -204,6 +200,15 @@ class InteractiveDebugger(
         toolBar.add(stepLineButton)
         toolBar.addSeparator()
         toolBar.add(flashButton)
+        toolBar.addSeparator()
+        val checkpointDebugMenu = JButton(FlatSVGIcon(javaClass.getResource("/history.svg"))).apply {
+            toolTipText = "Checkpoint history"
+        }
+        checkpointDebugMenu.addActionListener {
+            val frame = CheckpointVisualiser(debugger.checkpoints, binaryInfo)
+            frame.isVisible = true
+        }
+        toolBar.add(checkpointDebugMenu)
         toolBar.isFloatable = true
 
         val theme =
