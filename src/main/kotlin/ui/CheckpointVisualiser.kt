@@ -29,9 +29,17 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
                 checkPointNode.add(DefaultMutableTreeNode("pc = 0x${checkpoint.snapshot.pc?.toString(16)}"))
                 checkPointNode.add(DefaultMutableTreeNode("io = ${ObjectMapper().writer().writeValueAsString(checkpoint.snapshot.io)}"))
                 checkPointNode.add(DefaultMutableTreeNode("memory = ${checkpoint.snapshot.memory}"))
-                val neoPixelState = getNeoPixelColors(checkpoint.snapshot)
+                val neoPixelState = getNeoPixelColors(checkpoint.snapshot, "n")
                 if (neoPixelState.size == 64) {
-                    checkPointNode.add(NeoPixelNode(neoPixelState))
+                    val neoPixelNode = DefaultMutableTreeNode("NeoPixel state")
+                    neoPixelNode.add(NeoPixelNode(neoPixelState))
+                    checkPointNode.add(neoPixelNode)
+                }
+                val neoPixelBufferState = getNeoPixelColors(checkpoint.snapshot, "b")
+                if (neoPixelBufferState.size == 64) {
+                    val neoPixelNode = DefaultMutableTreeNode("NeoPixel buffer")
+                    neoPixelNode.add(NeoPixelNode(neoPixelBufferState))
+                    checkPointNode.add(neoPixelNode)
                 }
                 root.add(checkPointNode)
             }
@@ -62,11 +70,11 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
         add(JScrollPane(tree))
     }
 
-    fun getNeoPixelColors(snapshot: WOODDumpResponse): List<Color> {
+    fun getNeoPixelColors(snapshot: WOODDumpResponse, key: String): List<Color> {
         val colors = mutableListOf<Color>()
         for (ioElement in snapshot.io!!) {
-            if (ioElement.key.startsWith("n")) {
-                val pos = ioElement.key.substring(1).toInt()
+            if (ioElement.key.startsWith(key)) {
+                val pos = ioElement.key.substring(key.length).toInt()
                 val r = ioElement.value.ushr(16) and 0xff
                 val g = ioElement.value.ushr(8) and 0xff
                 val b = ioElement.value and 0xff
@@ -78,7 +86,7 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
     }
 
     fun strNeoPixelState(snapshot: WOODDumpResponse): String {
-        val colors = getNeoPixelColors(snapshot)
+        val colors = getNeoPixelColors(snapshot, "n")
         /*for (row in 0 ..< 8) {
             for (col in 0 ..< 8) {
                 val c = colors[row * 8 + col]
