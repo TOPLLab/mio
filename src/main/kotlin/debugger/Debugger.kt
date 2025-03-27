@@ -197,9 +197,18 @@ open class Debugger(private val connection: Connection, private val onHitBreakpo
             stepInto()
         }
     }
+
+    private fun canStepBack(): Boolean {
+        return checkpoints.size > 1
+    }
+
     fun stepBackUntil(binaryInfo: WasmInfo, cond: (WOODDumpResponse) -> Boolean) {
         stepBack(1, binaryInfo) {}
         while (!cond(checkpoints.last()!!.snapshot)) {
+            if (!canStepBack()) {
+                System.err.println("WARNING: Can't go back further!")
+                return
+            }
             stepBack(1, binaryInfo) {}
         }
     }
