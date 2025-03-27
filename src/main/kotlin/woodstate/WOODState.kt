@@ -629,6 +629,9 @@ class WOODState(woodResponse: WOODDumpResponse) {
      * | 2 bytes | 2 bytes | serializeElement(el1) | serializeElement(el2) | ...
      */
     private fun <T> serializeList(stateMsgs: HexaStateMessages, execState: ExecutionStateType, list: List<T>, serializeElement: (T) -> String) {
+        if (list.size >= 256) {
+            System.err.println("WARNING: count might not fit!")
+        }
         val elementCount = HexaEncoder.serializeUInt8(list.size)
         val headerSize = execState.length + elementCount.length
         var serializedElements = list.map { serializeElement(it) }
@@ -647,7 +650,7 @@ class WOODState(woodResponse: WOODDumpResponse) {
 
             val partialListPayload = serializedElements.slice(0 ..< fitCount).joinToString("")
             serializedElements = serializedElements.slice(fitCount ..< serializedElements.size)
-            val payload = "${execState}${elementCount}${partialListPayload}"
+            val payload = "${execState}${HexaEncoder.serializeUInt8(fitCount)}${partialListPayload}"
             println("execState = $execState")
             println("elementCount = $elementCount")
             println("partialListPayload = $partialListPayload")
