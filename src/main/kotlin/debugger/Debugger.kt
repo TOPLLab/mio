@@ -66,6 +66,14 @@ open class Debugger(private val connection: Connection, private val onHitBreakpo
                     val checkpoint = ObjectMapper().registerKotlinModule().readValue(payloadStr, Checkpoint::class.java)
                     //println(checkpoint)
 
+                    if (checkpoint.instructions_executed == 0 && checkpoints.size > 0) {
+                        if (checkpoint.snapshot.pc != checkpoints.last()!!.snapshot.pc) {
+                            throw RuntimeException("Received a checkpoint with a different pc but with 0 executed instructions since the last checkpoint!")
+                        }
+                        System.err.println("WARNING: Received a checkpoint that we already have!")
+                        continue
+                    }
+
                     for (i in 0..< checkpoint.instructions_executed - 1) {
                         checkpoints.add(null)
                     }
