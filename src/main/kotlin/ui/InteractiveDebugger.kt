@@ -205,7 +205,7 @@ class InteractiveDebugger(
             toolTipText = "Checkpoint history"
         }
         checkpointDebugMenu.addActionListener {
-            val frame = CheckpointVisualiser(debugger.checkpoints, binaryInfo)
+            val frame = CheckpointVisualiser(debugger.checkpoints, binaryInfo, debugger)
             frame.isVisible = true
         }
         toolBar.add(checkpointDebugMenu)

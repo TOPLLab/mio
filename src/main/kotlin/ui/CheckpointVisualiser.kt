@@ -2,18 +2,21 @@ package ui
 
 import WasmInfo
 import com.fasterxml.jackson.databind.ObjectMapper
+import debugger.Debugger
 import woodstate.Checkpoint
 import woodstate.WOODDumpResponse
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeCellRenderer
 
 
-class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo) : JFrame("Checkpoints") {
+class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo, debugger: Debugger) : JFrame("Checkpoints") {
     init {
         setSize(640, 480)
         minimumSize = Dimension(350, 100)
@@ -21,11 +24,7 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
         for (t in checkpoints.indices) {
             val checkpoint = checkpoints[t]
             if (checkpoint != null) {
-                var str = "Checkpoint t = $t"
-                if (checkpoint.fidx_called != null) {
-                    str += ", fidx = ${checkpoint.fidx_called}, ${binaryInfo.primitive_fidx_mapping[checkpoint.fidx_called]}(${checkpoint.args?.joinToString(",")})"
-                }
-                val checkPointNode = DefaultMutableTreeNode(str)
+                val checkPointNode = CheckpointNode(t, binaryInfo, checkpoint)
                 checkPointNode.add(DefaultMutableTreeNode("pc = 0x${checkpoint.snapshot.pc?.toString(16)}"))
                 checkPointNode.add(DefaultMutableTreeNode("io = ${ObjectMapper().writer().writeValueAsString(checkpoint.snapshot.io)}"))
                 checkPointNode.add(DefaultMutableTreeNode("memory = ${checkpoint.snapshot.memory}"))
@@ -45,6 +44,28 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
             }
         }
         val tree = JTree(root)
+
+        tree.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    val path = tree.getPathForLocation(e.x, e.y)
+
+                    if (path != null) {
+                        tree.selectionPath = path
+                        val node = path.lastPathComponent
+                        if (node is CheckpointNode) {
+                            val popupMenu = JPopupMenu()
+                            val restoreItem = JMenuItem("Restore (Dangerous)")
+                            restoreItem.addActionListener {
+                                debugger.loadSnapshot(node.checkpoint.snapshot)
+                            }
+                            popupMenu.add(restoreItem)
+                            popupMenu.show(tree, e.x, e.y)
+                        }
+                    }
+                }
+            }
+        })
 
         val renderer = object : DefaultTreeCellRenderer() {
             override fun getTreeCellRendererComponent(
@@ -112,6 +133,19 @@ class CheckpointVisualiser(checkpoints: List<Checkpoint?>, binaryInfo: WasmInfo)
 }
 
 data class NeoPixelNode(val colors: List<Color>) : DefaultMutableTreeNode("NeoPixel")
+data class CheckpointNode(val t: Int, val binaryInfo: WasmInfo, val checkpoint: Checkpoint) : DefaultMutableTreeNode() {
+    init {
+        var str = "Checkpoint t = $t"
+        if (checkpoint.fidx_called != null) {
+            str += ", fidx = ${checkpoint.fidx_called}, ${binaryInfo.primitive_fidx_mapping[checkpoint.fidx_called]}(${checkpoint.args?.joinToString(",")})"
+        }
+        userObject = str
+    }
+
+    override fun toString(): String {
+        return userObject as String
+    }
+}
 
 class GridExample(private val colors: List<Color>) : JPanel() {
     private val s = 32
