@@ -37,6 +37,7 @@ class InteractiveDebugger(
         connection,
         WasmBinary(File(wasmFile), binaryInfo),
         symbolicWdcliPath,
+        false,
         this::onGraphUpdate,
         this::onMockingUpdate,
         this::onHitBreakpoint
@@ -64,9 +65,6 @@ class InteractiveDebugger(
     }
     private val pausedOnlyButtons = listOf(stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton)
     private var paused = false
-    init {
-        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
-    }
 
     private val textArea = RSyntaxTextArea()
     private val scrollPane = RTextScrollPane(textArea, true)
@@ -91,6 +89,12 @@ class InteractiveDebugger(
         breakpointIcon.colorFilter.add( Color.black, Color(229, 20, 1), Color(229, 20, 1))
     }
     private var currentFileName = sourceMapping?.getSourceFile(0)
+
+    init {
+        debugger.startReading()
+        debugger.pause()
+        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
+    }
 
     init {
         FlatSVGIcon.ColorFilter.getInstance()

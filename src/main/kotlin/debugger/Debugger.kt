@@ -14,10 +14,10 @@ import java.util.*
 import kotlin.concurrent.thread
 import kotlin.streams.toList
 
-open class Debugger(private val connection: Connection, private val onHitBreakpoint: (Int) -> Unit = {}) : Closeable, AutoCloseable {
+open class Debugger(private val connection: Connection, start: Boolean = true, private val onHitBreakpoint: (Int) -> Unit = {}) : Closeable, AutoCloseable {
     private val requestQueue: Queue<Int> = LinkedList()
     private val messageQueue = MessageQueue()
-    private val readThread  = thread {
+    private val readThread  = thread(start) {
         while (!Thread.currentThread().isInterrupted) {
             while (connection.bytesAvailable() == 0) {
                 try {
@@ -105,6 +105,10 @@ open class Debugger(private val connection: Connection, private val onHitBreakpo
             println("Closing debugger connection...")
             close()
         })
+    }
+
+    fun startReading() {
+        readThread.start()
     }
 
     override fun close() {

@@ -156,17 +156,18 @@ class MultiverseDebugger(
     connection: Connection,
     val wasmBinary: WasmBinary,
     private val symbolicWdcliPath: String,
+    start: Boolean = true,
     private val graphUpdated: () -> Unit = {},
     private val mockingUpdated: () -> Unit = {},
     onHitBreakpoint: (Int) -> Unit = {}
-) : Debugger(connection, onHitBreakpoint) {
+) : Debugger(connection, start, onHitBreakpoint) {
     val graph = MultiverseGraph()
     private var len = 0
     val overrides = mutableMapOf<String, MutableMap<Int, Int>>()
 
     // TODO: Remove, just for testing
     init {
-        pause()
+        //pause()
     }
 
     override fun stepInto() {
