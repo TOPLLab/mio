@@ -28,14 +28,15 @@ class BlockingWindow(parent: JFrame?, actionTitle: String = "Please wait") : JDi
         isRepeats = false
     }
 
-    fun run(action: () -> Unit) {
+    fun <T> run(action: () -> T, after: (T) -> Unit = {}) {
         thread {
             t.start()
-            action()
+            val r = action()
             //dispatchEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSING))
             t.stop()
             isVisible = false
             dispose()
+            after(r)
         }
     }
 }

@@ -430,8 +430,10 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
         concolicButton.addActionListener {
             val w = BlockingWindow(null, "Analysing program")
             w.location = Point(this.location.x + this.width/2 - w.width/2, this.location.y + this.height/2 - w.height/2)
-            w.run {
-                multiverseDebugger.predictFuture(maxInstructions)
+            w.run({ multiverseDebugger.predictFuture(maxInstructions) }) { graphChanged ->
+                if (!graphChanged) {
+                    JOptionPane.showMessageDialog(this, "No future branching paths could be found")
+                }
             }
         }
 

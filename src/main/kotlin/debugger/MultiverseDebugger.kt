@@ -363,18 +363,24 @@ class MultiverseDebugger(
         return pc in wasmBinary.metadata.after_choicepoints
     }
 
-    fun predictFuture(maxInstructions: Int = 50, maxSymbolicVariables: Int = -1) {
-        val concolicGraphRoot = processPaths(analyse(
+    fun predictFuture(maxInstructions: Int = 50, maxSymbolicVariables: Int = -1): Boolean {
+        val result = analyse(
             symbolicWdcliPath,
             wasmBinary.file.absolutePath,
             snapshot(),
             maxInstructions,
             maxSymbolicVariables
-        ).paths)
+        )
+        if (result.paths.isEmpty()) {
+            return false
+        }
+
+        val concolicGraphRoot = processPaths(result.paths)
         // Remove current future and add newly predicted future, otherwise you will get a split timeline between the
         // previously predicted future and the newly predicted future.
         graph.replaceCurrentNode(concolicGraphRoot)
         graphUpdated()
+        return true
     }
 
     // TODO: Remove/move/improve
