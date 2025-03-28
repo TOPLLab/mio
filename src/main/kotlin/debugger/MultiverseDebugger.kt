@@ -175,14 +175,14 @@ class MultiverseDebugger(
         println("Step!")
 
         // If a checkpoint is received an a new node is created then we will be at that node and then it won't have children
-        if (graph.currentNode.children.isNotEmpty()) {
+        /*if (graph.currentNode.children.isNotEmpty()) {
             // TODO: What if no override is set, how do we know where to go?
             val primitiveResult = getCurrentState().stack!!.last()
             graph.currentNode.values.indexOf(primitiveResult.value.toInt())
             graph.currentNode = graph.currentNode.nextNode(primitiveResult)
             //graph.currentNode = graph.currentNode.nextNode(overrides)
             graphUpdated()
-        }
+        }*/
         printCheckpoints(wasmBinary.metadata)
     }
 
@@ -281,6 +281,8 @@ class MultiverseDebugger(
     override fun checkpointsUpdated() {
         super.checkpointsUpdated()
         val newCheckpoints = checkpoints.toList()
+        if (newCheckpoints.size > len)
+            println("Checkpoints: ${newCheckpoints.subList(len, newCheckpoints.size)}")
         val change = newCheckpoints.size - len
         len = newCheckpoints.size
 
@@ -316,12 +318,23 @@ class MultiverseDebugger(
             if (checkpoint != null && isAfterChoicePoint(checkpoint.snapshot.pc!!)) {
                 val stackValue = checkpoint.snapshot.stack!!.last()
                 val intValue = stackValue.value.toInt()
-                if (graph.currentNode is PrimitiveNode && !graph.currentNode.values.contains(intValue)) {
-                    val newNode = MultiverseNode()
-                    graph.currentNode.values.add(intValue)
-                    graph.currentNode.addChild(newNode)
-                    graph.currentNode = newNode
+                if (graph.currentNode is PrimitiveNode) {
+                    if (!graph.currentNode.values.contains(intValue)) {
+                        val newNode = MultiverseNode()
+                        graph.currentNode.values.add(intValue)
+                        graph.currentNode.addChild(newNode)
+                        graph.currentNode = newNode
+                    }
+                    else {
+                        graph.currentNode = graph.currentNode.nextNode(stackValue)
+                    }
                 }
+            }
+            else if (graph.currentNode.children.size == 1) {
+                graph.currentNode = graph.currentNode.children.first()
+            }
+            else {
+                throw RuntimeException("Don't know where to go! ${graph.currentNode.displayName}")
             }
             return
         }
