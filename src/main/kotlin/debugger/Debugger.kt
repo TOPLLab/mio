@@ -33,25 +33,6 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             //print(String(readBuffer))
             messageQueue.push(String(readBuffer), true)
 
-            if (!commandBreakpoint) {
-                // Check for "AT address!"
-                val searchAtResult = messageQueue.search {
-                    val match = Regex("AT ([0-9]+)!").matchEntire(it.trimEnd('\r')) ?: throw Exception()
-                    return@search match.groups[1]!!.value.toInt()
-                }
-                if (searchAtResult != null) {
-                    /*
-                     * Run the callback in a separate thread, this allows the callback function to make use of debugger
-                     * functions that wait until a message is received. If we don't use a separate thread, the execution
-                     * of this function would block the current thread, but this thread is responsible for reading
-                     * incoming messages, so the request would never be completed.
-                     */
-                    thread {
-                        onHitBreakpoint(searchAtResult.second)
-                    }
-                }
-            }
-
             while (true) {
                 val checkpointMessage = messageQueue.search {
                     val match = Regex("CHECKPOINT (.*)").matchEntire(it.trimEnd('\r')) ?: throw Exception()
@@ -94,6 +75,26 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
                 }
             }
             messageQueue.pushDone()
+
+            // Handle breakpoints after receiving checkpoints so we have the correct state.
+            if (!commandBreakpoint) {
+                // Check for "AT address!"
+                val searchAtResult = messageQueue.search {
+                    val match = Regex("AT ([0-9]+)!").matchEntire(it.trimEnd('\r')) ?: throw Exception()
+                    return@search match.groups[1]!!.value.toInt()
+                }
+                if (searchAtResult != null) {
+                    /*
+                     * Run the callback in a separate thread, this allows the callback function to make use of debugger
+                     * functions that wait until a message is received. If we don't use a separate thread, the execution
+                     * of this function would block the current thread, but this thread is responsible for reading
+                     * incoming messages, so the request would never be completed.
+                     */
+                    thread {
+                        onHitBreakpoint(searchAtResult.second)
+                    }
+                }
+            }
         }
     }
     val history = mutableListOf<WOODDumpResponse>()
@@ -296,7 +297,10 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
         checkpointsUpdated()
     }
     open fun checkpointsUpdated() {}
-    fun addBreakpoint(address: Int) = send(6, String.format("%08x", address))
+    fun addBreakpoint(address: Int) {
+        send(6, String.format("%08x", address))
+        messageQueue.waitForResponse("BP $address!")
+    }
     fun removeBreakpoint(address: Int) = send(7, String.format("%08x", address))
     private fun internalContinueFor(n: Int) {
         //Thread.sleep(n * 1L)
