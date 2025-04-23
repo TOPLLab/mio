@@ -363,14 +363,15 @@ class MultiverseDebugger(
         return pc in wasmBinary.metadata.after_choicepoints
     }
 
-    fun predictFuture(maxInstructions: Int = 50, maxSymbolicVariables: Int = -1, maxIterations: Int = -1): Boolean {
+    fun predictFuture(maxInstructions: Int = 50, maxSymbolicVariables: Int = -1, maxIterations: Int = -1, stopPc: Int = -1): Boolean {
         val result = analyse(
             symbolicWdcliPath,
             wasmBinary.file.absolutePath,
             snapshot(),
             maxInstructions,
             maxSymbolicVariables,
-            maxIterations
+            maxIterations,
+            stopPc
         )
         if (result.paths.isEmpty()) {
             return false
