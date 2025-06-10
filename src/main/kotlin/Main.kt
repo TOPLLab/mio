@@ -8,6 +8,7 @@ import connections.ProcessConnection
 import connections.SerialConnection
 import debugger.Debugger
 import ui.InteractiveDebugger
+import ui.StartScreen
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -19,8 +20,13 @@ fun expectNArguments(args: Array<String>, n : Int) {
 }
 
 fun main(args: Array<String>) {
-    expectNArguments(args, 1)
     val config = DebuggerConfig()
+    if (args.isEmpty()) {
+        val startScreen = StartScreen(config)
+        startScreen.isVisible = true
+        return
+    }
+    expectNArguments(args, 1)
     when (args[0]) {
         "debug" -> {
             expectNArguments(args, 2)
