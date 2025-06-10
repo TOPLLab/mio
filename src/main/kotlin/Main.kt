@@ -10,6 +10,8 @@ import debugger.Debugger
 import ui.InteractiveDebugger
 import ui.StartScreen
 import java.io.File
+import java.io.FileNotFoundException
+import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
 fun expectNArguments(args: Array<String>, n : Int) {
@@ -20,15 +22,20 @@ fun expectNArguments(args: Array<String>, n : Int) {
 }
 
 fun main(args: Array<String>) {
-    val config = DebuggerConfig()
     if (args.isEmpty()) {
-        System.setProperty("apple.laf.useScreenMenuBar", "true")
-        System.setProperty("apple.awt.application.name", "MIO")
-        val startScreen = StartScreen(config)
-        startScreen.isVisible = true
+        try {
+            val config = DebuggerConfig()
+            System.setProperty("apple.laf.useScreenMenuBar", "true")
+            System.setProperty("apple.awt.application.name", "MIO")
+            val startScreen = StartScreen(config)
+            startScreen.isVisible = true
+        } catch(_: FileNotFoundException) {
+            JOptionPane.showMessageDialog(null, "Configuration file ~/.wardbg/debugger.properties not found!\nPlease read the \"Configuration\" section of the documentation.", "Invalid configuration", JOptionPane.ERROR_MESSAGE)
+        }
         return
     }
     expectNArguments(args, 1)
+    val config = DebuggerConfig()
     when (args[0]) {
         "debug" -> {
             expectNArguments(args, 2)
