@@ -22,6 +22,8 @@ fun expectNArguments(args: Array<String>, n : Int) {
 fun main(args: Array<String>) {
     val config = DebuggerConfig()
     if (args.isEmpty()) {
+        System.setProperty("apple.laf.useScreenMenuBar", "true")
+        System.setProperty("apple.awt.application.name", "MIO")
         val startScreen = StartScreen(config)
         startScreen.isVisible = true
         return
