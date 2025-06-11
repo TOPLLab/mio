@@ -4,6 +4,7 @@ import DebuggerConfig
 import com.fazecast.jSerialComm.SerialPort
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatIntelliJLaf
+import com.formdev.flatlaf.util.SystemInfo
 import connections.ProcessConnection
 import connections.SerialConnection
 import sourcemap.AsSourceMapping
@@ -20,8 +21,10 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         setSize(400, 300)
         isResizable = false
-        val mainPanel = Box.createVerticalBox()
+        val mainPanel = JPanel()
+        mainPanel.setLayout(BoxLayout(mainPanel, BoxLayout.Y_AXIS))
         mainPanel.border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        mainPanel.add(Box.createVerticalGlue())
         mainPanel.add(JLabel(ImageIcon(ImageIcon(this.javaClass.getResource("/warduino-logo.png")).image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))).apply {
             setAlignmentX(CENTER_ALIGNMENT)
         })
@@ -60,10 +63,15 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
                 }
             }
         })
+        mainPanel.add(Box.createVerticalGlue())
         add(mainPanel)
     }
 
     private fun configureTheme() {
+        if (SystemInfo.isMacFullWindowContentSupported) {
+            this.rootPane.putClientProperty("apple.awt.transparentTitleBar", "true")
+            this.rootPane.putClientProperty("apple.awt.fullWindowContent", "true")
+        }
         if (config.lightMode) FlatIntelliJLaf.setup()
         else FlatDarkLaf.setup()
     }

@@ -1,12 +1,12 @@
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatIntelliJLaf
+import connections.ProcessConnection
+import connections.SerialConnection
+import debugger.Debugger
 import sourcemap.AsSourceMapping
 import sourcemap.compileAndFlash
 import sourcemap.compileWat
 import sourcemap.getDwarfSourcemap
-import connections.ProcessConnection
-import connections.SerialConnection
-import debugger.Debugger
 import ui.InteractiveDebugger
 import ui.StartScreen
 import java.io.File
@@ -27,6 +27,7 @@ fun main(args: Array<String>) {
             val config = DebuggerConfig()
             System.setProperty("apple.laf.useScreenMenuBar", "true")
             System.setProperty("apple.awt.application.name", "MIO")
+            System.setProperty("apple.awt.application.appearance", if (config.lightMode) "NSAppearanceNameAqua" else "NSAppearanceNameDarkAqua")
             val startScreen = StartScreen(config)
             startScreen.isVisible = true
         } catch(_: FileNotFoundException) {
