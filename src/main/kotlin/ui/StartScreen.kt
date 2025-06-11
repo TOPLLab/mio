@@ -2,40 +2,20 @@ package ui
 
 import DebuggerConfig
 import com.fazecast.jSerialComm.SerialPort
-import com.formdev.flatlaf.FlatDarkLaf
-import com.formdev.flatlaf.FlatIntelliJLaf
-import com.formdev.flatlaf.themes.FlatMacLightLaf
-import com.formdev.flatlaf.util.SystemInfo
 import connections.ProcessConnection
 import connections.SerialConnection
 import sourcemap.AsSourceMapping
 import java.awt.Dimension
-import java.awt.Image
 import java.io.File
 import javax.swing.*
 import javax.swing.filechooser.FileNameExtensionFilter
 
-class StartScreen(val config: DebuggerConfig) : JFrame() {
+open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
     init {
-        configureTheme()
         defaultCloseOperation = EXIT_ON_CLOSE
-        setSize(400, 300)
-        isResizable = false
-        val mainPanel = JPanel()
-        mainPanel.setLayout(BoxLayout(mainPanel, BoxLayout.Y_AXIS))
-        mainPanel.border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        mainPanel.add(Box.createVerticalGlue())
-        mainPanel.add(JLabel(ImageIcon(ImageIcon(this.javaClass.getResource("/warduino-logo.png")).image.getScaledInstance(100, 100, Image.SCALE_SMOOTH))).apply {
-            setAlignmentX(CENTER_ALIGNMENT)
-        })
-        mainPanel.add(JLabel("MIO Debugger").apply {
-            setAlignmentX(CENTER_ALIGNMENT)
-            putClientProperty( "FlatLaf.style", "font: 250% \$semibold.font")
-        })
-        mainPanel.add(JLabel("for WARDuino").apply {
-            setAlignmentX(CENTER_ALIGNMENT)
-            putClientProperty( "FlatLaf.style", "font: 160% \$light.font")
-        })
+    }
+
+    override fun addOptions(mainPanel: JPanel) {
         val portComboBox = JComboBox<String>().apply {
             setAlignmentX(CENTER_ALIGNMENT)
             maximumSize = Dimension(250, -1)
@@ -63,22 +43,6 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
                 }
             }
         })
-        mainPanel.add(Box.createVerticalGlue())
-        add(mainPanel)
-    }
-
-    private fun configureTheme() {
-        if (SystemInfo.isMacFullWindowContentSupported) {
-            this.rootPane.putClientProperty("apple.awt.transparentTitleBar", "true")
-            this.rootPane.putClientProperty("apple.awt.fullWindowContent", "true")
-        }
-        if (config.lightMode) {
-            if (SystemInfo.isMacOS) FlatMacLightLaf.setup()
-            else FlatIntelliJLaf.setup()
-        }
-        else {
-            FlatDarkLaf.setup()
-        }
     }
 
     private fun startDebugger(binary: File, emulator: Boolean, comPort: String) {
