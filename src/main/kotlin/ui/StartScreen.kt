@@ -4,12 +4,12 @@ import DebuggerConfig
 import com.fazecast.jSerialComm.SerialPort
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatIntelliJLaf
+import com.formdev.flatlaf.themes.FlatMacLightLaf
 import com.formdev.flatlaf.util.SystemInfo
 import connections.ProcessConnection
 import connections.SerialConnection
 import sourcemap.AsSourceMapping
 import java.awt.Dimension
-import java.awt.Font
 import java.awt.Image
 import java.io.File
 import javax.swing.*
@@ -30,11 +30,11 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
         })
         mainPanel.add(JLabel("MIO Debugger").apply {
             setAlignmentX(CENTER_ALIGNMENT)
-            font = font.deriveFont(Font.BOLD).deriveFont(30.0f)
+            putClientProperty( "FlatLaf.style", "font: 250% \$semibold.font")
         })
         mainPanel.add(JLabel("for WARDuino").apply {
             setAlignmentX(CENTER_ALIGNMENT)
-            font = font.deriveFont(20.0f)
+            putClientProperty( "FlatLaf.style", "font: 160% \$light.font")
         })
         val portComboBox = JComboBox<String>().apply {
             setAlignmentX(CENTER_ALIGNMENT)
@@ -72,8 +72,13 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
             this.rootPane.putClientProperty("apple.awt.transparentTitleBar", "true")
             this.rootPane.putClientProperty("apple.awt.fullWindowContent", "true")
         }
-        if (config.lightMode) FlatIntelliJLaf.setup()
-        else FlatDarkLaf.setup()
+        if (config.lightMode) {
+            if (SystemInfo.isMacOS) FlatMacLightLaf.setup()
+            else FlatIntelliJLaf.setup()
+        }
+        else {
+            FlatDarkLaf.setup()
+        }
     }
 
     private fun startDebugger(binary: File, emulator: Boolean, comPort: String) {
