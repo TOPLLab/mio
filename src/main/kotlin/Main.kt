@@ -66,9 +66,9 @@ fun main(args: Array<String>) {
             else
                 FlatDarkLaf.setup()
             if (args.size == 2)
-                InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, lightMode = lightMode)
+                InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, config = config)
             else
-                InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, args[2], lightMode = lightMode)
+                InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, args[2], config = config)
         }
         "repl" -> {
             val connection =

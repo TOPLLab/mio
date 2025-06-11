@@ -1,5 +1,6 @@
 package ui
 
+import DebuggerConfig
 import WasmBinary
 import com.formdev.flatlaf.extras.FlatSVGIcon
 import connections.Connection
@@ -30,7 +31,7 @@ class InteractiveDebugger(
     symbolicWdcliPath: String,
     private val sourceMapping: SourceMap? = null,
     private val wasmFile: String = "/home/maarten/Documents/School/Thesis/thesis-git/wardbg/simple-sym-test.wasm",
-    private val lightMode: Boolean = false
+    private val config: DebuggerConfig
 ) : JFrame("WARDuino Debugger") {
     private val binaryInfo = getBinaryInfo(symbolicWdcliPath, File(wasmFile).absolutePath)
     private val debugger = MultiverseDebugger(
@@ -68,15 +69,15 @@ class InteractiveDebugger(
 
     private val textArea = RSyntaxTextArea()
     private val scrollPane = RTextScrollPane(textArea, true)
-    private val multiversePanel = MultiversePanel(debugger, debugger.graph) {
+    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) {
         updateStepBackButton()
         updatePcLabel()
         println("Update UI state")
     }
     private val watchWindow = WatchWindow()
 
-    private val debugBlue = if (lightMode) Color(0, 122, 204) else Color(117, 190, 255)
-    private val debugGreen = if (lightMode) Color(89, 158, 94) else Color(136, 207, 131)
+    private val debugBlue = if (config.lightMode) Color(0, 122, 204) else Color(117, 190, 255)
+    private val debugGreen = if (config.lightMode) Color(89, 158, 94) else Color(136, 207, 131)
     private val continueIcon = FlatSVGIcon(javaClass.getResource("/debug-continue.svg"))
     init {
         continueIcon.colorFilter = FlatSVGIcon.ColorFilter()
@@ -216,7 +217,7 @@ class InteractiveDebugger(
         toolBar.isFloatable = true
 
         val theme =
-            if (lightMode) Theme.load(javaClass.getResourceAsStream("/light.xml"))
+            if (config.lightMode) Theme.load(javaClass.getResourceAsStream("/light.xml"))
             else Theme.load(javaClass.getResourceAsStream("/dark.xml"))
         theme.apply(textArea)
         // Increase font size:
@@ -328,7 +329,7 @@ class InteractiveDebugger(
                 textArea.syntaxEditingStyle = sourceMapping.getStyle()
             }
             textArea.removeAllLineHighlights()
-            textArea.addLineHighlight(lineNumber - 1, if (lightMode) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+            textArea.addLineHighlight(lineNumber - 1, if (config.lightMode) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
 
             val lineY = textArea.yForLine(lineNumber - 1)
             if (lineY < scrollPane.verticalScrollBar.value || lineY + 20 > scrollPane.verticalScrollBar.value + scrollPane.height) {
@@ -391,8 +392,8 @@ class ContinueForAction(val debugger: Debugger, var n: Int) : MultiverseAction {
     }
 }
 
-class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, lightMode: Boolean = false, stateChanged: () -> Unit) : JPanel() {
-    private val graphPanel = GraphPanel(graph, lightMode)
+class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: () -> Unit) : JPanel() {
+    private val graphPanel = GraphPanel(graph, config.lightMode)
     private val mockPanel = OverridesPanel()
     private val concolicButton = JButton("Suggest interesting paths")
     private var maxInstructions = 50
@@ -410,7 +411,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
     private val customButton = JButton("Mock").apply {
         isEnabled = false
     }
-    private val followButton = JButton("Jump").apply {
+    private val followButton = JButton("Slide").apply {
         isEnabled = false
     }
     init {
@@ -421,8 +422,10 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
         })
         //add(OverridesPanel(), BorderLayout.EAST)
         add(JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
-            //add(concolicOptionsButton)
-            //add(concolicButton)
+            if (config.concolic) {
+                add(concolicOptionsButton)
+                add(concolicButton)
+            }
             add(customButton)
             add(followButton)
         }, BorderLayout.SOUTH)

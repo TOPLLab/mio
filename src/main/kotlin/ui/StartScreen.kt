@@ -84,6 +84,6 @@ class StartScreen(val config: DebuggerConfig) : JFrame() {
             SerialConnection(comPort)
         }
         val sourceMapping = AsSourceMapping(File(binary.path + ".map").readText())
-        InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, binary.path, lightMode = config.lightMode)
+        InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, binary.path, config = config)
     }
 }
