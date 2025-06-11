@@ -2,6 +2,7 @@ package ui
 
 import DebuggerConfig
 import com.fazecast.jSerialComm.SerialPort
+import com.formdev.flatlaf.extras.FlatSVGIcon
 import connections.ProcessConnection
 import connections.SerialConnection
 import sourcemap.AsSourceMapping
@@ -18,13 +19,25 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
     override fun addOptions(mainPanel: JPanel) {
         val portComboBox = JComboBox<String>().apply {
             setAlignmentX(CENTER_ALIGNMENT)
-            maximumSize = Dimension(250, -1)
+            maximumSize = Dimension(250, 500)
             for (port in SerialPort.getCommPorts()) {
                 addItem(port.systemPortPath)
             }
             selectedItem = config.port
         }
-        mainPanel.add(portComboBox)
+        val portBox = Box.createHorizontalBox()
+        portBox.add(portComboBox)
+        portBox.add(JButton(FlatSVGIcon(javaClass.getResource("/refresh.svg"))).apply {
+            addActionListener {
+                val currentItem = portComboBox.selectedItem as String
+                portComboBox.removeAllItems()
+                for (port in SerialPort.getCommPorts()) {
+                    portComboBox.addItem(port.systemPortPath)
+                }
+                portComboBox.selectedItem = currentItem
+            }
+        })
+        mainPanel.add(portBox)
         val emulatorCheckbox = JCheckBox("Use emulator").apply {
             setAlignmentX(CENTER_ALIGNMENT)
             isSelected = config.useEmulator
