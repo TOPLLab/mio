@@ -1,6 +1,7 @@
 package be.ugent.topl.mio.ui
 
 import be.ugent.topl.mio.DebuggerConfig
+import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatIntelliJLaf
 import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.themes.FlatMacDarkLaf
@@ -9,6 +10,7 @@ import com.formdev.flatlaf.util.SystemInfo
 import java.awt.Desktop
 import java.awt.Image
 import javax.swing.*
+
 
 open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
     init {
@@ -43,8 +45,9 @@ open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
 
     private fun configureTheme() {
         if (SystemInfo.isMacFullWindowContentSupported) {
-            this.rootPane.putClientProperty("apple.awt.transparentTitleBar", "true")
-            this.rootPane.putClientProperty("apple.awt.fullWindowContent", "true")
+            rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
+            rootPane.putClientProperty("apple.awt.fullWindowContent", true)
+            rootPane.putClientProperty("apple.awt.windowTitleVisible", false)
         }
         if (SystemInfo.isMacOS) {
             val desktop = Desktop.getDesktop()
@@ -61,7 +64,11 @@ open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
             else FlatIntelliJLaf.setup()
         }
         else {
-            FlatDarkLaf.setup()
+            if (SystemInfo.isMacOS) {
+                FlatLaf.registerCustomDefaultsSource( "themes")
+                FlatMacDarkLaf.setup()
+            }
+            else FlatDarkLaf.setup()
         }
     }
 }
