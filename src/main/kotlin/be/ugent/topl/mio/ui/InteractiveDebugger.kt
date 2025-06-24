@@ -11,6 +11,7 @@ import be.ugent.topl.mio.debugger.PrimitiveNode
 import be.ugent.topl.mio.sourcemap.SourceMap
 import be.ugent.topl.mio.woodstate.WOODDumpResponse
 import com.formdev.flatlaf.FlatClientProperties
+import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.extras.FlatSVGIcon
 import com.formdev.flatlaf.util.SystemInfo
 import getBinaryInfo
@@ -83,8 +84,8 @@ class InteractiveDebugger(
     }
     private val watchWindow = WatchWindow()
 
-    private val debugBlue = if (config.lightMode) Color(0, 122, 204) else Color(117, 190, 255)
-    private val debugGreen = if (config.lightMode) Color(89, 158, 94) else Color(136, 207, 131)
+    private val debugBlue = if (!FlatLaf.isLafDark()) Color(0, 122, 204) else Color(117, 190, 255)
+    private val debugGreen = if (!FlatLaf.isLafDark()) Color(89, 158, 94) else Color(136, 207, 131)
     private val continueIcon = FlatSVGIcon(javaClass.getResource("/debug-continue.svg"))
     init {
         continueIcon.colorFilter = FlatSVGIcon.ColorFilter()
@@ -336,7 +337,7 @@ class InteractiveDebugger(
                 textArea.syntaxEditingStyle = sourceMapping.getStyle()
             }
             textArea.removeAllLineHighlights()
-            textArea.addLineHighlight(lineNumber - 1, if (config.lightMode) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+            textArea.addLineHighlight(lineNumber - 1, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
 
             val lineY = textArea.yForLine(lineNumber - 1)
             if (lineY < scrollPane.verticalScrollBar.value || lineY + 20 > scrollPane.verticalScrollBar.value + scrollPane.height) {
@@ -400,7 +401,7 @@ class ContinueForAction(val debugger: Debugger, var n: Int) : MultiverseAction {
 }
 
 class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: () -> Unit) : JPanel() {
-    private val graphPanel = GraphPanel(graph, config.lightMode)
+    private val graphPanel = GraphPanel(graph)
     private val mockPanel = OverridesPanel()
     private val concolicButton = JButton("Suggest interesting paths")
     private var maxInstructions = 50

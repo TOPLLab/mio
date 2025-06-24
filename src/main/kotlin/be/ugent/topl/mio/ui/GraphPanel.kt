@@ -4,6 +4,7 @@ import be.ugent.topl.mio.debugger.DeterministicPrimitiveNode
 import be.ugent.topl.mio.debugger.MultiverseGraph
 import be.ugent.topl.mio.debugger.MultiverseNode
 import be.ugent.topl.mio.debugger.PrimitiveNode
+import com.formdev.flatlaf.FlatLaf
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Cursor
@@ -19,7 +20,7 @@ import java.awt.geom.Path2D
 import javax.swing.JPanel
 import javax.swing.UIManager
 
-class GraphPanel(private val graph: MultiverseGraph, lightMode: Boolean = false) : JPanel(),
+class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     MouseListener, MouseMotionListener {
     private var selectionListeners = mutableListOf<() -> Unit>()
     init {
@@ -32,7 +33,7 @@ class GraphPanel(private val graph: MultiverseGraph, lightMode: Boolean = false)
     private val primaryColour = UIManager.getDefaults().getColor("Panel.foreground")
     private val backgroundColour = UIManager.getDefaults().getColor("CheckBox.icon.background")
     private val secondaryColour = UIManager.getDefaults().getColor("Button.default.background") //javax.swing.UIManager.getDefaults().getColor("Button.default.focusColor")
-    private val green = if (lightMode) Color(89, 158, 94) else Color(136, 207, 131)
+    private val green = if (!FlatLaf.isLafDark()) Color(89, 158, 94) else Color(136, 207, 131)
     private val d = 20
     private val hSpace = 100
     private var renderedHeight = 500
