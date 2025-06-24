@@ -18,6 +18,7 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.geom.Path2D
 import javax.swing.JPanel
+import javax.swing.JScrollPane
 import javax.swing.UIManager
 
 class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
@@ -40,6 +41,10 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     private var renderedWidth = 2000
     private val nodes = mutableListOf<Node>()
     private var selectedNode: Node? = null
+
+    // Panning
+    private var startPos = Point(0, 0)
+    var associatedScrollPane: JScrollPane? = null
 
     data class Node(val x: Int, val y: Int, val w: Int, val h: Int, val value: MultiverseNode)
 
@@ -195,7 +200,9 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
         repaint()
     }
 
-    override fun mousePressed(p0: MouseEvent) {}
+    override fun mousePressed(p0: MouseEvent) {
+        startPos = p0.point
+    }
 
     override fun mouseReleased(p0: MouseEvent) {}
 
@@ -203,7 +210,11 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
 
     override fun mouseExited(p0: MouseEvent) {}
 
-    override fun mouseDragged(e: MouseEvent) {}
+    override fun mouseDragged(e: MouseEvent) {
+        val delta = Point(e.x - startPos.x, e.y - startPos.y)
+        associatedScrollPane?.horizontalScrollBar?.value -= delta.x
+        associatedScrollPane?.verticalScrollBar?.value -= delta.y
+    }
 
     override fun mouseMoved(e: MouseEvent) {
         cursor = Cursor(Cursor.DEFAULT_CURSOR)

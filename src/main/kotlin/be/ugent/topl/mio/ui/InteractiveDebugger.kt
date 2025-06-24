@@ -425,7 +425,9 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
     init {
         layout = BorderLayout()
         //add(JScrollPane(graphPanel))
-        add(JSplitPane(JSplitPane.VERTICAL_SPLIT, JScrollPane(graphPanel), mockPanel).apply {
+        val scrollpane = JScrollPane(graphPanel)
+        graphPanel.associatedScrollPane = scrollpane
+        add(JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollpane, mockPanel).apply {
             resizeWeight = 0.7
         })
         //add(OverridesPanel(), BorderLayout.EAST)
