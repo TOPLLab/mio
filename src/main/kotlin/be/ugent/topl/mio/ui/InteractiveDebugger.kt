@@ -407,7 +407,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
     private val concolicOptionsButton = JButton().apply {
         val gearIcon = FlatSVGIcon(MultiverseDebugger::javaClass.javaClass.getResource("/settings-gear.svg"))
         gearIcon.colorFilter = FlatSVGIcon.ColorFilter()
-        gearIcon.colorFilter.add(Color.black, Color(0,0,0), Color(0,0,0))
+        gearIcon.colorFilter.add(Color.black, UIManager.getDefaults().getColor("Button.foreground"), UIManager.getDefaults().getColor("Button.foreground"))
         icon = gearIcon
         addActionListener {
             JOptionPane.showInputDialog("Instruction limit", maxInstructions)?.let {
