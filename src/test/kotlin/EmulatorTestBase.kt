@@ -1,6 +1,7 @@
-import connections.ProcessConnection
-import connections.SerialConnection
-import debugger.Debugger
+import be.ugent.topl.mio.DebuggerConfig
+import be.ugent.topl.mio.connections.ProcessConnection
+import be.ugent.topl.mio.connections.SerialConnection
+import be.ugent.topl.mio.debugger.Debugger
 import java.io.File
 
 abstract class EmulatorTestBase {

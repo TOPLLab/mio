@@ -1,7 +1,7 @@
-import debugger.Debugger
+import be.ugent.topl.mio.debugger.Debugger
 import org.junit.jupiter.api.Test
-import woodstate.WOODDumpResponse
-import woodstate.compressRLE
+import be.ugent.topl.mio.woodstate.WOODDumpResponse
+import be.ugent.topl.mio.woodstate.compressRLE
 import kotlin.random.Random
 import kotlin.test.assertEquals
 

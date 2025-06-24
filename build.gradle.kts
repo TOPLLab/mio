@@ -38,7 +38,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("be.ugent.topl.mio.MainKt")
 }
 
 
@@ -53,7 +53,7 @@ tasks.register<Jar>("fatJar") {
     })
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes["Main-Class"] = "MainKt"
+        attributes["Main-Class"] = "be.ugent.topl.mio.MainKt"
         attributes["Implementation-Version"] = project.version
     }
 }

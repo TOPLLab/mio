@@ -1,7 +1,7 @@
-import debugger.MessageQueue
+import be.ugent.topl.mio.debugger.MessageQueue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import woodstate.WOODState
+import be.ugent.topl.mio.woodstate.WOODState
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals

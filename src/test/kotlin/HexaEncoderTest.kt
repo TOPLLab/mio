@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test
-import woodstate.HexaEncoder
+import be.ugent.topl.mio.woodstate.HexaEncoder
 import kotlin.test.assertEquals
 
 class HexaEncoderTest {

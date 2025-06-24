@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test
-import woodstate.WOODState
+import be.ugent.topl.mio.woodstate.WOODState
 import kotlin.test.assertEquals
 
 class WOODStateTest {

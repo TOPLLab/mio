@@ -1,11 +1,10 @@
-import connections.ProcessConnection
-import connections.SerialConnection
-import debugger.Debugger
-import debugger.MultiverseDebugger
+import be.ugent.topl.mio.connections.ProcessConnection
+import be.ugent.topl.mio.debugger.Debugger
+import be.ugent.topl.mio.debugger.MultiverseDebugger
 import org.apache.commons.math3.stat.StatUtils
 import org.junit.jupiter.api.Test
-import woodstate.WOODDumpResponse
-import woodstate.compressRLE
+import be.ugent.topl.mio.woodstate.WOODDumpResponse
+import be.ugent.topl.mio.woodstate.compressRLE
 import java.io.File
 import java.io.FileWriter
 import java.lang.System.currentTimeMillis
