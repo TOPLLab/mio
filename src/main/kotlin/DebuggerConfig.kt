@@ -3,8 +3,10 @@ import java.util.*
 
 class DebuggerConfig {
     private val properties = Properties()
+    val configDir = "${System.getenv("HOME")}/.wardbg"
+    private val propertiesLocation = "$configDir/debugger.properties"
     init {
-        properties.load(FileInputStream("${System.getenv("HOME")}/.wardbg/debugger.properties"))
+        properties.load(FileInputStream(propertiesLocation))
     }
     val warduinoDir: String = properties.getProperty("warduinoDir")
     val wdcliPath = properties.getProperty("wdcli")
