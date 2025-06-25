@@ -187,7 +187,8 @@ class MultiverseDebugger(
     }
 
     override fun stepOver() {
-        val startSize = checkpoints.size
+        super.stepOver()
+        /*val startSize = checkpoints.size
         val startNode = graph.currentNode
         val pathExists = startNode.children.isNotEmpty()
         super.stepOver()
@@ -198,7 +199,7 @@ class MultiverseDebugger(
             println(instructionsExecuted)
             val dest = startNode.nextNode(overrides, instructionsExecuted)
             graph.currentNode = dest
-        }
+        }*/
     }
 
     override fun stepBack(n: Int, binaryInfo: WasmInfo, stepDone: () -> Unit) {

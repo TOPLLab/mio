@@ -1,13 +1,9 @@
 package be.ugent.topl.mio.ui
 
-import be.ugent.topl.mio.DebuggerConfig
 import WasmBinary
+import be.ugent.topl.mio.DebuggerConfig
 import be.ugent.topl.mio.connections.Connection
-import be.ugent.topl.mio.debugger.ConstraintParser
-import be.ugent.topl.mio.debugger.Debugger
-import be.ugent.topl.mio.debugger.MultiverseDebugger
-import be.ugent.topl.mio.debugger.MultiverseGraph
-import be.ugent.topl.mio.debugger.PrimitiveNode
+import be.ugent.topl.mio.debugger.*
 import be.ugent.topl.mio.sourcemap.SourceMap
 import be.ugent.topl.mio.woodstate.WOODDumpResponse
 import com.formdev.flatlaf.FlatClientProperties
@@ -30,7 +26,7 @@ import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.table.DefaultTableModel
-import kotlin.collections.iterator
+import javax.swing.text.DefaultCaret
 import kotlin.concurrent.thread
 
 
@@ -240,6 +236,21 @@ class InteractiveDebugger(
             frame.isVisible = true
         }
         toolBar.add(checkpointDebugMenu)
+
+        val consoleWindow = ConsoleWindow(debugger)
+        val consoleToggle = JToggleButton(FlatSVGIcon(javaClass.getResource("/console.svg"))).apply {
+            addActionListener {
+                consoleWindow.isVisible = model.isSelected
+            }
+        }
+        consoleWindow.addWindowListener(object : WindowAdapter() {
+            override fun windowClosing(e: WindowEvent?) {
+                if (consoleToggle.model.isSelected) {
+                    consoleToggle.model.isSelected = false
+                }
+            }
+        })
+        toolBar.add(consoleToggle)
 
         val theme =
             if (!FlatLaf.isLafDark()) Theme.load(javaClass.getResourceAsStream("/light.xml"))

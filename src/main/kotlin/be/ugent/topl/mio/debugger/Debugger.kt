@@ -11,12 +11,20 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.Closeable
 import java.io.File
 import java.util.*
+import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 import kotlin.streams.toList
 
 open class Debugger(private val connection: Connection, start: Boolean = true, private val onHitBreakpoint: (Int) -> Unit = {}) : Closeable, AutoCloseable {
     private val requestQueue: Queue<Int> = LinkedList()
-    private val messageQueue = MessageQueue()
+    var printListener: ((String) -> Unit)? = null
+    private val messageQueue = MessageQueue {
+        for (msg in it) {
+            if (msg.startsWith("EMU: ")) {
+                this.printListener?.invoke(msg)
+            }
+        }
+    }
     private val readThread  = thread(start) {
         while (!Thread.currentThread().isInterrupted) {
             while (connection.bytesAvailable() == 0) {
@@ -30,7 +38,6 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
 
             val readBuffer = ByteArray(connection.bytesAvailable())
             connection.read(readBuffer)
-            //print(String(readBuffer))
             messageQueue.push(String(readBuffer), true)
 
             while (true) {

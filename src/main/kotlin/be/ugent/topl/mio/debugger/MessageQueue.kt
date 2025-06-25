@@ -3,20 +3,25 @@ package be.ugent.topl.mio.debugger
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 
-class MessageQueue {
+class MessageQueue(private val notifyAdded: (List<String>) -> Unit = {}) {
     private val queue = Collections.synchronizedList(mutableListOf<String>())
     private val removeLock = ReentrantLock()
 
     fun push(data: String, keepLock: Boolean = false) {
         val splitData = data.split("\n").toMutableList()
         removeLock.lock()
+        val startSize = queue.size
         if (lastMessageIncomplete()) {
             queue.add(queue.removeLast() + splitData.removeFirst())
+        }
+        queue.addAll(splitData)
+        val added = queue.size - startSize + if (lastMessageIncomplete()) -1 else 0
+        if (added > 0) {
+            notifyAdded(queue.subList(startSize, startSize + added))
         }
         if (!keepLock) {
             removeLock.unlock()
         }
-        queue.addAll(splitData)
     }
 
     fun pushDone() {
