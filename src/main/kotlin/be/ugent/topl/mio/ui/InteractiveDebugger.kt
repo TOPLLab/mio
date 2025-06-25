@@ -202,8 +202,26 @@ class InteractiveDebugger(
             }*/
             debugger.updateModule(wasmFile)
         }
-
         val toolBar = JToolBar()
+        toolBar.isFloatable = true
+        if (config.macIntegratedToolbar && SystemInfo.isMacFullWindowContentSupported) {
+            toolBar.isFloatable = false
+            rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
+            rootPane.putClientProperty("apple.awt.fullWindowContent", true)
+            rootPane.putClientProperty("apple.awt.windowTitleVisible", false)
+            rootPane.putClientProperty(
+                FlatClientProperties.MACOS_WINDOW_BUTTONS_SPACING,
+                FlatClientProperties.MACOS_WINDOW_BUTTONS_SPACING_MEDIUM
+            )
+
+            val placeholder = JPanel()
+            placeholder.putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT_BUTTONS_PLACEHOLDER, "mac")
+            val toolBarPanel = JPanel(BorderLayout())
+            toolBarPanel.add(placeholder, BorderLayout.WEST)
+            toolBarPanel.add(toolBar, BorderLayout.CENTER)
+
+            contentPane.add(toolBarPanel, BorderLayout.NORTH)
+        }
         toolBar.add(pauseButton)
         toolBar.add(stepBackButton)
         toolBar.add(stepOverButton)
@@ -222,10 +240,9 @@ class InteractiveDebugger(
             frame.isVisible = true
         }
         toolBar.add(checkpointDebugMenu)
-        toolBar.isFloatable = true
 
         val theme =
-            if (config.lightMode) Theme.load(javaClass.getResourceAsStream("/light.xml"))
+            if (!FlatLaf.isLafDark()) Theme.load(javaClass.getResourceAsStream("/light.xml"))
             else Theme.load(javaClass.getResourceAsStream("/dark.xml"))
         theme.apply(textArea)
         // Increase font size:
@@ -273,8 +290,9 @@ class InteractiveDebugger(
 
         val verticalPanel = JPanel()
         verticalPanel.layout = BorderLayout()
-        verticalPanel.add(toolBar, BorderLayout.NORTH)
-        //verticalPanel.add(scrollPane, BorderLayout.CENTER)
+        if (!SystemInfo.isMacFullWindowContentSupported || !config.macIntegratedToolbar) {
+            verticalPanel.add(toolBar, BorderLayout.NORTH)
+        }
 
         val horizontalSplitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, multiversePanel)
         horizontalSplitPane.resizeWeight = 0.6

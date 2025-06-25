@@ -18,5 +18,6 @@ class DebuggerConfig {
     val useEmulator = properties.getProperty("useEmulator", "false") == "true"
     val uiScale = properties.getProperty("uiScale", "1")
     val lightMode = properties.getProperty("lightMode", "true") == "true"
+    val macIntegratedToolbar = properties.getProperty("mac.integratedToolbar", "false") == "true"
     val concolic = properties.getProperty("concolic", "false") == "true"
 }
