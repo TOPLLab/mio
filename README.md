@@ -9,7 +9,7 @@ MIO uses the Gradle build system. To build a jar you can simply run `./gradlew f
 
 ## Configuration
 To use the debugger you will need a `debugger.properties` configuration file, this config currently needs to be positioned at
-`~/.wardbg/debugger.properties`. This config specifies where the debugger can find WARDuino, which USB port it should
+`~/.mio/debugger.properties`. This config specifies where the debugger can find WARDuino, which USB port it should
 use, if the debugger should run on an emulator or not and how big the UI should be. An example of this config file can
 be found [here](debugger.properties).
 
