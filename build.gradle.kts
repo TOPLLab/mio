@@ -43,7 +43,7 @@ application {
 
 
 tasks.register<Jar>("fatJar") {
-    archiveFileName.set("wardbg.jar")
+    archiveFileName.set("mio.jar")
 
     from(sourceSets.main.get().output)
 
