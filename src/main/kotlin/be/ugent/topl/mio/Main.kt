@@ -114,6 +114,10 @@ fun main(args: Array<String>) {
         "flash" -> {
             expectNArguments(args, 2)
             val watFilename = args[1]
+            if (config.warduinoDir == null || config.fqbn == null) {
+                System.err.println("The flash option requires warduinoDir and fqbn to be defined in the configuration file!")
+                return
+            }
             compileAndFlash(
                 config.warduinoDir,
                 watFilename,
