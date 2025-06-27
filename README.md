@@ -1,4 +1,7 @@
 # MIO Debugger
+
+[![DOI](https://zenodo.org/badge/893997044.svg)](https://doi.org/10.5281/zenodo.15758201)
+
 The MIO _/maː.joː/_ debugger is a first of its kind multiverse debugger designed for debugging WebAssembly programs on the WARDuino virtual machine.
 
 ## Getting started
