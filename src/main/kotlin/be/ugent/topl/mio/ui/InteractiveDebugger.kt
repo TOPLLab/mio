@@ -449,7 +449,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
     private val customButton = JButton("Mock").apply {
         isEnabled = false
     }
-    private val followButton = JButton("Slide").apply {
+    private val followButton = JButton(if (config.concolic) "Slide" else "Jump").apply {
         isEnabled = false
     }
     init {
