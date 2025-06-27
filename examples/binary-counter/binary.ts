@@ -2,11 +2,6 @@
 @external("env", "chip_pin_mode") declare function chip_pin_mode(pin: i32, mode: i32): void;
 @external("env", "chip_digital_write") declare function chip_digital_write(pin: i32, value: i32): void;
 @external("env", "chip_digital_read") declare function chip_digital_read(pin: i32): i32;
-@external("env", "encoder_position") declare function encoder_position(idx: i32): i32;
-@external("env", "drive_motor_degrees") declare function drive_motor_degrees(motor_index: i32, angle: i32, speed: i32): void;
-@external("env", "setup_uart_sensor") declare function setup_uart_sensor(sensor_index: i32): void;
-@external("env", "colour_sensor") declare function colour_sensor(sensor_index: i32): i32;
-@external("env", "print_int") declare function print_int(v: i32): void;
 
 const INPUT = 0;
 const OUTPUT = 2;
