@@ -85,6 +85,7 @@ tasks.register<Copy>("setup") {
     // Setup configuration file.
     val file = File("${System.getenv("HOME")}/.mio/debugger.properties")
     if (!file.exists()) {
+        file.parentFile.mkdirs()
         println("Generating a default configuration file ${file.absolutePath}")
         val properties = Properties()
         properties.setProperty("wdcli", wdcliPath)
