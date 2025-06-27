@@ -70,6 +70,8 @@ tasks.register<Exec>("cmakeWARDuino") {
 }
 
 tasks.register<Exec>("makeWARDuino") {
+    dependsOn("cmakeWARDuino")
+
     val buildDir = File(File(wdcliPath).parent)
     buildDir.mkdirs()
     workingDir(buildDir)
@@ -78,7 +80,6 @@ tasks.register<Exec>("makeWARDuino") {
 
 tasks.register<Copy>("setup") {
     dependsOn("fatJar")
-    dependsOn("cmakeWARDuino")
     dependsOn("makeWARDuino")
 
     // Setup configuration file.

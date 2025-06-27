@@ -1,11 +1,23 @@
 # MIO Debugger
 The MIO _/maː.joː/_ debugger is a first of its kind multiverse debugger designed for debugging WebAssembly programs on the WARDuino virtual machine.
 
-## Building
-MIO uses the Gradle build system. To build a jar you can simply run `./gradlew fatjar`. The debugger can then be started using `java -jar mio.jar` in the `build/libs` directory. To run MIO you will need Java 22 or higher.
+## Getting started
+> [!NOTE]
+> Currently only Linux and macOS are supported.
 
-> [!IMPORTANT]
-> Before running the debugger you will need to create a configuration as specified below.
+MIO uses the Gradle build system. To get started, `./gradlew setup` can be used. This will build MIO and WARDuino and create a default configuration file in `~/.mio/debugger.properties`. 
+
+The debugger can then be started by running `java -jar mio.jar` in the `build/libs` directory. To run MIO you will need Java 22 or higher.
+
+```bash
+git clone --recursive git@github.com:TOPLLab/MIO.git
+cd MIO
+./gradlew setup
+cd build/libs
+java -jar mio.jar
+```
+
+More experienced users can also just build MIO by itself by using `./gradlew fatjar`. When doing so you will need to manually create a configuration file and provide or build your own copy of WARDuino. More information about the configuration file can be found below.
 
 ## Configuration
 To use the debugger you will need a `debugger.properties` configuration file, this config currently needs to be positioned at
@@ -14,11 +26,7 @@ use, if the debugger should run on an emulator or not and how big the UI should 
 be found [here](debugger.properties).
 
 > [!NOTE]
-> Currently, MIO uses a modified version of WARDuino that has a `--dump-info` argument. This argument is used to get
-information about the binary such as which program counters in the binary are right after primitive calls, what the
-names are of imported functions, etc... 
-> 
-> This custom argument is available on the `feat/symbolic-templated` branch. This branch also houses the code for the concolic execution engine used for suggesting interesting paths.
+> The concolic option currently requires the usage of a modified WARDuino version which can be found on the `feat/symbolic-templated` branch. This branch houses the code for the concolic execution engine used for suggesting interesting paths.
 
 ## Command line arguments
 MIO has various command line arguments that can be used to flash and debug programs. We list these options here:
