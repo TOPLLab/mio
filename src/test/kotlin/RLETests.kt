@@ -5,7 +5,7 @@ import be.ugent.topl.mio.woodstate.compressRLE
 import kotlin.random.Random
 import kotlin.test.assertEquals
 
-class RLETests : EmulatorTestBase() {
+class RLETests : DebuggerTestBase() {
     private fun loadAndRestore(debugger: Debugger, mutator: (s: WOODDumpResponse) -> Unit) {
         val snapshot = debugger.snapshotFull().second
         mutator(snapshot)

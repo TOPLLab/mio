@@ -12,7 +12,7 @@ import kotlin.math.ceil
 import kotlin.random.Random
 import kotlin.test.assertEquals
 
-class DebuggerTests : EmulatorTestBase() {
+class DebuggerTests : DebuggerTestBase() {
     @Test
     fun `Test if step back results in the same state`() {
         val binaryInfo = getBinaryInfo(config.symbolicWdcliPath, getFile("blink.wasm").absolutePath)
@@ -51,6 +51,8 @@ class DebuggerTests : EmulatorTestBase() {
         }
     }
 
+    // forward-execution-checkpointing.csv
+    // First graph
     @Test
     fun `Test continue for operation speed with and without checkpointing`() {
         val writer = FileWriter(File("results-forward-execution.csv"))
@@ -253,6 +255,7 @@ class DebuggerTests : EmulatorTestBase() {
         }
     }
 
+    // step-back-reexecute.csv
     @Test
     fun `Step back test 3`() {
         val wasmFile = "prime/prime-no-mem.wasm"
@@ -382,9 +385,4 @@ class DebuggerTests : EmulatorTestBase() {
 
         println(compressRLE(listOf("00", "00", "00", "00", "00"), 3))
     }
-}
-
-fun main() {
-    val x = DebuggerTests()
-    x.`Test stepBack performance  2`()
 }

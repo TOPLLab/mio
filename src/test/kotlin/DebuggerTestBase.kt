@@ -4,7 +4,7 @@ import be.ugent.topl.mio.connections.SerialConnection
 import be.ugent.topl.mio.debugger.Debugger
 import java.io.File
 
-abstract class EmulatorTestBase {
+abstract class DebuggerTestBase {
     protected val config = DebuggerConfig()
     protected val wdcliPath: String = config.wdcliPath
 
@@ -13,7 +13,7 @@ abstract class EmulatorTestBase {
     }
 
     protected fun <T> runWithDebugger(file:String, emulator: Boolean = false, action: (Debugger) -> T): T {
-        val connection = if (emulator) ProcessConnection(wdcliPath, getFile(file).path, "--no-socket") else SerialConnection(config.port)
+        val connection = if (emulator) ProcessConnection(wdcliPath, getFile(file).path, "--no-socket") else SerialConnection(config.port ?: throw RuntimeException("Port was not configured!"))
         val debugger = Debugger(connection)
         if (!emulator) {
             debugger.updateModule(getFile(file).absolutePath)
