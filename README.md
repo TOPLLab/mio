@@ -1,5 +1,5 @@
 # MIO Debugger
-The MIO debugger is a first of its kind multiverse debugger designed for debugging WebAssembly programs on the WARDuino virtual machine.
+The MIO _/maː.joː/_ debugger is a first of its kind multiverse debugger designed for debugging WebAssembly programs on the WARDuino virtual machine.
 
 ## Building
 MIO uses the Gradle build system. To build a jar you can simply run `./gradlew fatjar`. The debugger can then be started using `java -jar mio.jar` in the `build/libs` directory. To run MIO you will need Java 22 or higher.
