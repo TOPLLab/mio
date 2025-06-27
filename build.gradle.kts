@@ -78,9 +78,16 @@ tasks.register<Exec>("makeWARDuino") {
     commandLine("sh", "-c", "make")
 }
 
+fun setDefaultZephyrWasmBinary() {
+    val zephyrBuildDir = File(projectDir.absolutePath + "/WARDuino/platforms/Zephyr")
+    File(projectDir.absolutePath + "/examples/binary-counter/upload.wasm").copyTo(File(zephyrBuildDir.absolutePath + "/upload.wasm"), overwrite = true)
+    File(projectDir.absolutePath + "/examples/binary-counter/upload.wasm.map").copyTo(File(zephyrBuildDir.absolutePath + "/upload.wasm.map"), overwrite = true)
+}
+
 tasks.register<Copy>("setup") {
     dependsOn("fatJar")
     dependsOn("makeWARDuino")
+    setDefaultZephyrWasmBinary()
 
     // Setup configuration file.
     val file = File("${System.getenv("HOME")}/.mio/debugger.properties")
