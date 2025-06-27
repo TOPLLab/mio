@@ -17,6 +17,7 @@ class DebuggerConfig {
     val lightMode = properties.getProperty("lightMode", "true") == "true"
     val macIntegratedToolbar = properties.getProperty("mac.integratedToolbar", "false") == "true"
     val concolic = properties.getProperty("concolic", "false") == "true"
+    val checkpointHistory = properties.getProperty("checkpointHistory", "false") == "true"
 
     val warduinoDir: String? = properties.getProperty("warduinoDir")
     val fqbn: String? = properties.getProperty("fqbn")

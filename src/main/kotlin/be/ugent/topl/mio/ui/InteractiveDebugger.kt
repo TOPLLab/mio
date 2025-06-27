@@ -228,14 +228,15 @@ class InteractiveDebugger(
         toolBar.addSeparator()
         toolBar.add(flashButton)
         toolBar.addSeparator()
-        val checkpointDebugMenu = JButton(FlatSVGIcon(javaClass.getResource("/history.svg"))).apply {
-            toolTipText = "Checkpoint history"
+        if (config.checkpointHistory) {
+            toolBar.add(JButton(FlatSVGIcon(javaClass.getResource("/history.svg"))).apply {
+                toolTipText = "Checkpoint history"
+                addActionListener {
+                    val frame = CheckpointVisualiser(debugger.checkpoints, binaryInfo, debugger)
+                    frame.isVisible = true
+                }
+            })
         }
-        checkpointDebugMenu.addActionListener {
-            val frame = CheckpointVisualiser(debugger.checkpoints, binaryInfo, debugger)
-            frame.isVisible = true
-        }
-        toolBar.add(checkpointDebugMenu)
 
         val consoleWindow = ConsoleWindow(debugger)
         val consoleToggle = JToggleButton(FlatSVGIcon(javaClass.getResource("/console.svg"))).apply {
