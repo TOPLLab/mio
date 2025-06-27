@@ -62,22 +62,29 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
                 if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                     recentProperties.setProperty("lastDir", chooser.selectedFile.parent)
                     recentProperties.store(FileWriter(recentConfig), null)
+                    if(!startDebugger(chooser.selectedFile, emulatorCheckbox.isSelected, portComboBox.selectedItem as String?)) {
+                        JOptionPane.showMessageDialog(this, "Please select a port!", "Invalid port", JOptionPane.ERROR_MESSAGE)
+                        return@addActionListener
+                    }
                     isVisible = false
                     dispose()
-                    startDebugger(chooser.selectedFile, emulatorCheckbox.isSelected, portComboBox.selectedItem as String)
                 }
             }
         })
     }
 
-    private fun startDebugger(binary: File, emulator: Boolean, comPort: String) {
+    private fun startDebugger(binary: File, emulator: Boolean, comPort: String?): Boolean {
         val connection = if (emulator) {
             ProcessConnection(config.wdcliPath, binary.path, "--no-socket")
         }
         else {
+            if (comPort == null) {
+                return false
+            }
             SerialConnection(comPort)
         }
         val sourceMapping = AsSourceMapping(File(binary.path + ".map").readText())
         InteractiveDebugger(connection, config.symbolicWdcliPath, sourceMapping, binary.path, config = config)
+        return true
     }
 }

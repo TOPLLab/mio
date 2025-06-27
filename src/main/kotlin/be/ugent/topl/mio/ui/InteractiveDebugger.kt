@@ -557,22 +557,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 primitiveNameTextField.selectedItem = currentNode.primitive
             }
 
-            /*val relations = listOf(
-                Relation(
-                    IOState("p45", true, 0),
-                    PrimitiveOverride(multiverseDebugger.wasmBinary.metadata, "color_sensor", 0, 0)
-                ) { real, other -> real == other },
-                Relation(
-                    IOState("p46", true, 10),
-                    PrimitiveOverride(multiverseDebugger.wasmBinary.metadata, "color_sensor", 1, 5)
-                ) { real, other -> real < other },
-                Relation(
-                    IOState("p45", true, 0),
-                    PrimitiveOverride(multiverseDebugger.wasmBinary.metadata, "chip_pin_mode", 0, 37)
-                ) { real, other -> real == other },
-            )*/
-            //val relations = listOf<Relation>()
-            val relations = if (File("test.constraints").exists()) ConstraintParser.parseFile("test.constraints") else listOf()
+            val relations = if (File(config.configDir + "/program.constraints").exists()) ConstraintParser.parseFile("test.constraints") else listOf()
 
             fun handleRelations() {
                 returnValueTextField.isEnabled = true
