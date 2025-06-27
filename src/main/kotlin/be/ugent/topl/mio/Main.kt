@@ -23,6 +23,13 @@ fun expectNArguments(args: Array<String>, n : Int) {
     }
 }
 
+fun portRequired(config: DebuggerConfig) {
+    if (config.port == null) {
+        System.err.println("No port was specified in the configuration file!")
+        exitProcess(1)
+    }
+}
+
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
         try {
@@ -57,7 +64,10 @@ fun main(args: Array<String>) {
                         ProcessConnection(config.wdcliPath, wasmFilename, "--no-socket")
                     }
                 }
-                else SerialConnection(config.port)
+                else {
+                    portRequired(config)
+                    SerialConnection(config.port!!)
+                }
             val sourceMapping =
                 if (watFilename.endsWith(".wasm.map"))
                     AsSourceMapping(File(watFilename).readText())
@@ -82,7 +92,10 @@ fun main(args: Array<String>) {
                     expectNArguments(args, 2)
                     val wasmFilename = args[1]
                     ProcessConnection(config.wdcliPath, wasmFilename, "--no-socket")
-                } else SerialConnection(config.port)
+                } else {
+                    portRequired(config)
+                    SerialConnection(config.port!!)
+                }
             val debugger = Debugger(connection)
             debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
             debugger.repl()
@@ -94,7 +107,10 @@ fun main(args: Array<String>) {
             val wasmFilename = args[1]
             val connection =
                 if (config.useEmulator) ProcessConnection(config.wdcliPath, wasmFilename, "--no-socket")
-                else SerialConnection(config.port)
+                else  {
+                    portRequired(config)
+                    SerialConnection(config.port!!)
+                }
             val debugger = Debugger(connection)
             debugger.updateModule(args[1])
             debugger.close()
@@ -104,7 +120,10 @@ fun main(args: Array<String>) {
             val wasmFilename = args[1]
             val connection =
                 if (config.useEmulator) ProcessConnection(config.wdcliPath, wasmFilename, "--no-socket")
-                else SerialConnection(config.port)
+                else  {
+                    portRequired(config)
+                    SerialConnection(config.port!!)
+                }
             val debugger = Debugger(connection)
             debugger.updateModule(args[1])
             debugger.run()
@@ -118,11 +137,12 @@ fun main(args: Array<String>) {
                 System.err.println("The flash option requires warduinoDir and fqbn to be defined in the configuration file!")
                 return
             }
+            portRequired(config)
             compileAndFlash(
                 config.warduinoDir,
                 watFilename,
                 config.fqbn,
-                config.port
+                config.port!!
             )
         }
         else -> {

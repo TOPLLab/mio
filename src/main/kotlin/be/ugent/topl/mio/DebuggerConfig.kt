@@ -11,7 +11,7 @@ class DebuggerConfig {
     }
     val wdcliPath = properties.getProperty("wdcli")
     val symbolicWdcliPath = properties.getProperty("wdcli-symbolic", wdcliPath)
-    val port = properties.getProperty("port")
+    val port: String? = properties.getProperty("port")
     val useEmulator = properties.getProperty("useEmulator", "false") == "true"
     val uiScale = properties.getProperty("uiScale", "1")
     val lightMode = properties.getProperty("lightMode", "true") == "true"
