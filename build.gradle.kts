@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     kotlin("jvm") version "2.0.0"
     application
@@ -55,5 +57,21 @@ tasks.register<Jar>("fatJar") {
     manifest {
         attributes["Main-Class"] = "be.ugent.topl.mio.MainKt"
         attributes["Implementation-Version"] = project.version
+    }
+}
+
+tasks.register<Copy>("setup") {
+    dependsOn("fatJar")
+
+    val file = File("${System.getenv("HOME")}/.mio/debugger.properties")
+    if (!file.exists()) {
+        println("Generating a default configuration file ${file.absolutePath}")
+        val properties = Properties()
+        val wdcliPath = projectDir.absolutePath + "/WARDuino/build-emu/wdcli"
+        if (!File(wdcliPath).exists()) {
+            System.err.println("WARNING: WARDuino has not yet been compiled!")
+        }
+        properties.setProperty("wdcli", wdcliPath)
+        properties.store(file.writer(), null)
     }
 }

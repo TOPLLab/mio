@@ -26,7 +26,9 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
             for (port in SerialPort.getCommPorts()) {
                 addItem(port.systemPortPath)
             }
-            selectedItem = config.port
+            if (config.port != null) {
+                selectedItem = config.port
+            }
         }
         val portBox = Box.createHorizontalBox()
         portBox.add(portComboBox)
@@ -43,7 +45,7 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
         mainPanel.add(portBox)
         val emulatorCheckbox = JCheckBox("Use emulator").apply {
             setAlignmentX(CENTER_ALIGNMENT)
-            isSelected = config.useEmulator
+            isSelected = config.useEmulator || config.port == null
         }
         mainPanel.add(emulatorCheckbox)
         val recentProperties = Properties()
