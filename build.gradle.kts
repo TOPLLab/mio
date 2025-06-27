@@ -60,17 +60,32 @@ tasks.register<Jar>("fatJar") {
     }
 }
 
+val wdcliPath = projectDir.absolutePath + "/WARDuino/build-emu/wdcli"
+
+tasks.register<Exec>("cmakeWARDuino") {
+    val buildDir = File(File(wdcliPath).parent)
+    buildDir.mkdirs()
+    workingDir(buildDir)
+    commandLine("sh", "-c", "cmake .. -DBUILD_EMULATOR=ON")
+}
+
+tasks.register<Exec>("makeWARDuino") {
+    val buildDir = File(File(wdcliPath).parent)
+    buildDir.mkdirs()
+    workingDir(buildDir)
+    commandLine("sh", "-c", "make")
+}
+
 tasks.register<Copy>("setup") {
     dependsOn("fatJar")
+    dependsOn("cmakeWARDuino")
+    dependsOn("makeWARDuino")
 
+    // Setup configuration file.
     val file = File("${System.getenv("HOME")}/.mio/debugger.properties")
     if (!file.exists()) {
         println("Generating a default configuration file ${file.absolutePath}")
         val properties = Properties()
-        val wdcliPath = projectDir.absolutePath + "/WARDuino/build-emu/wdcli"
-        if (!File(wdcliPath).exists()) {
-            System.err.println("WARNING: WARDuino has not yet been compiled!")
-        }
         properties.setProperty("wdcli", wdcliPath)
         properties.store(file.writer(), null)
     }
