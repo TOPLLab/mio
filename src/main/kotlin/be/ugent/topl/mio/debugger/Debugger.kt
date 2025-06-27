@@ -21,7 +21,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
     private val messageQueue = MessageQueue {
         for (msg in it) {
             if (msg.startsWith("EMU: ")) {
-                this.printListener?.invoke(msg)
+                this.printListener?.invoke(msg.substring(5))
             }
         }
     }
