@@ -14,6 +14,8 @@ import java.lang.System.currentTimeMillis
  * important factor.
  */
 class Benchmarks : DebuggerTestBase() {
+    fun useEmulator() = config.useEmulator || config.port == null
+
     /**
      * Executes the code using continueFor over n instructions and measures how much time it takes with different
      * checkpointing strategies.
@@ -36,7 +38,7 @@ class Benchmarks : DebuggerTestBase() {
                 var totalTime = 0L
                 val times = 10
                 repeat(times) {
-                    runWithDebugger("prime/prime-no-mem.wasm", true) {
+                    runWithDebugger("prime/prime-no-mem.wasm", useEmulator()) {
                         it.setSnapshotPolicy(policy)
                         val startTime = currentTimeMillis()
                         it.continueFor(n)
@@ -66,7 +68,7 @@ class Benchmarks : DebuggerTestBase() {
         val binaryInfo = getBinaryInfo(config.symbolicWdcliPath, getFile(wasmFile).absolutePath)
         val results = mutableListOf<List<Pair<Int, Long>>>()
         repeat(10) {
-            runWithDebugger(wasmFile, true) {
+            runWithDebugger(wasmFile, useEmulator()) {
                 var t = 0
                 val timings = mutableListOf<Pair<Int, Long>>()
                 it.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing(0xffffff))
