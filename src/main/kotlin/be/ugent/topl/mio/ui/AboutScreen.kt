@@ -45,7 +45,6 @@ open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
     }
 
     private fun configureTheme() {
-        System.setProperty("sun.java2d.uiScale", config.uiScale)
         if (SystemInfo.isMacFullWindowContentSupported) {
             rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
             rootPane.putClientProperty("apple.awt.fullWindowContent", true)
