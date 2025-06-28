@@ -8,6 +8,7 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf
 import com.formdev.flatlaf.themes.FlatMacLightLaf
 import com.formdev.flatlaf.util.SystemInfo
 import java.awt.Desktop
+import java.awt.Dimension
 import java.awt.Image
 import javax.swing.*
 
@@ -16,7 +17,7 @@ open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
     init {
         configureTheme()
         setSize(400, 300)
-        isResizable = false
+        minimumSize = Dimension(400, 300)
         val mainPanel = JPanel()
         mainPanel.setLayout(BoxLayout(mainPanel, BoxLayout.Y_AXIS))
         mainPanel.border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
@@ -44,6 +45,7 @@ open class AboutScreen(protected val config: DebuggerConfig) : JFrame() {
     }
 
     private fun configureTheme() {
+        System.setProperty("sun.java2d.uiScale", config.uiScale)
         if (SystemInfo.isMacFullWindowContentSupported) {
             rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
             rootPane.putClientProperty("apple.awt.fullWindowContent", true)
