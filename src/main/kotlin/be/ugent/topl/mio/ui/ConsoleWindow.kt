@@ -16,9 +16,9 @@ class ConsoleWindow(debugger: Debugger) : JFrame("Console") {
         val textArea = JTextArea().apply {
             isEditable = false
         }
-        val iStream = javaClass.getResourceAsStream("/fonts/jetbrains/JetBrainsMono-Light.ttf");
-        val customFont = Font.createFont(Font.TRUETYPE_FONT, iStream);
-        textArea.font = customFont.deriveFont(Font.PLAIN, 13.0f);
+        val iStream = javaClass.getResourceAsStream("/fonts/jetbrains/JetBrainsMono-Regular.ttf")
+        val customFont = Font.createFont(Font.TRUETYPE_FONT, iStream)
+        textArea.font = customFont.deriveFont(Font.PLAIN, 13.0f)
         val scrollPane = JScrollPane(textArea)
         val caret = textArea.caret as DefaultCaret
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE)
