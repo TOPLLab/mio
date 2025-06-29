@@ -11,6 +11,7 @@ import be.ugent.topl.mio.sourcemap.compileWat
 import be.ugent.topl.mio.sourcemap.getDwarfSourcemap
 import be.ugent.topl.mio.ui.InteractiveDebugger
 import be.ugent.topl.mio.ui.StartScreen
+import com.formdev.flatlaf.util.SystemInfo
 import java.io.File
 import java.io.FileNotFoundException
 import javax.swing.JOptionPane
@@ -34,10 +35,14 @@ fun main(args: Array<String>) {
     if (args.isEmpty()) {
         try {
             val config = DebuggerConfig()
-            System.setProperty("apple.laf.useScreenMenuBar", "true")
-            System.setProperty("apple.awt.application.name", "MIO")
-            System.setProperty("apple.awt.application.appearance", if (config.lightMode) "NSAppearanceNameAqua" else "NSAppearanceNameDarkAqua")
-            System.setProperty("sun.java2d.uiScale", config.uiScale)
+            if (SystemInfo.isMacOS) {
+                System.setProperty("apple.laf.useScreenMenuBar", "true")
+                System.setProperty("apple.awt.application.name", "MIO")
+                System.setProperty("apple.awt.application.appearance", if (config.lightMode) "NSAppearanceNameAqua" else "NSAppearanceNameDarkAqua")
+            }
+            else {
+                System.setProperty("sun.java2d.uiScale", config.uiScale)
+            }
             val startScreen = StartScreen(config)
             startScreen.isVisible = true
         } catch(_: FileNotFoundException) {
