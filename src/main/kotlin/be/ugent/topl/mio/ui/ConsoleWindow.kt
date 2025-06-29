@@ -8,6 +8,7 @@ import javax.swing.JScrollPane
 import javax.swing.JTextArea
 import javax.swing.text.DefaultCaret
 import javax.swing.text.StyleContext
+import java.io.File
 
 class ConsoleWindow(debugger: Debugger) : JFrame("Console") {
     init {
@@ -15,8 +16,9 @@ class ConsoleWindow(debugger: Debugger) : JFrame("Console") {
         val textArea = JTextArea().apply {
             isEditable = false
         }
-        val st = StyleContext.getDefaultStyleContext()
-        textArea.font = st.getFont(Font.MONOSPACED, Font.PLAIN, 13)
+        val iStream = javaClass.getResourceAsStream("/fonts/jetbrains/JetBrainsMono-Light.ttf");
+        val customFont = Font.createFont(Font.TRUETYPE_FONT, iStream);
+        textArea.font = customFont.deriveFont(Font.PLAIN, 13.0f);
         val scrollPane = JScrollPane(textArea)
         val caret = textArea.caret as DefaultCaret
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE)
