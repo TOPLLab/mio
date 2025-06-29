@@ -515,23 +515,12 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 for (action in actionPath) {
                     action.doAction()
                 }
-                graphPanel.completedPath.addAll(forwardPath.subList(0, forwardPath.size - 1))
-                graphPanel.repaint()
-                //Thread.sleep(1000)
-                stateChanged()
-                //debugger.continueFor(forwardPath.size - 1)
-
-                graphPanel.completedPath.add(forwardPath.last())
-                graphPanel.repaint()
-
-                //multiverseDebugger.graph.currentNode = forwardPath.last()
                 graphPanel.completedPath.clear()
-                graphPanel.selectedNodes.clear()
-                graphPanel.repaint()
+                graphPanel.setSelectedNode(null)
 
-                multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
+                stateChanged()
 
-                graphPanel.clearSelection()
+                //multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
             }
         }
 
@@ -658,7 +647,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
     }
 
     fun graphChanged() {
-        graphPanel.repaint()
+        graphPanel.invalidated()
         //customButton.isEnabled = multiverseDebugger.graph.currentNode is PrimitiveNode
     }
 

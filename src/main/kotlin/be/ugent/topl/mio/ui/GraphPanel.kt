@@ -186,18 +186,33 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     override fun mouseClicked(e: MouseEvent) {
         for (node in nodes) {
             if (e.x > node.x && e.y > node.y && e.x < node.x + node.w && e.y < node.y + node.h) {
-                selectedNode = node
+                setSelectedNode(node)
+                return
             }
         }
-        if (selectedNode == null) return
+    }
+
+    fun setSelectedNode(node: Node?) {
+        selectedNode = node
+        if (node == null) {
+            selectedPath = null
+            selectedNodes.clear()
+            fireSelectionListeners()
+            repaint()
+            return
+        }
 
         println(graph.rootNode.findPath(graph.currentNode, selectedValue!!))
         selectedPath = graph.rootNode.findPath(graph.currentNode, selectedValue!!)
         selectedNodes = selectedPath!!.first.toMutableSet()
         selectedNodes.addAll(selectedPath!!.second.toSet())
 
-        selectionListeners.forEach { it() }
+        fireSelectionListeners()
         repaint()
+    }
+
+    private fun fireSelectionListeners() {
+        selectionListeners.forEach { it() }
     }
 
     override fun mousePressed(p0: MouseEvent) {
@@ -226,5 +241,9 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
             }
         }
         cursor = if(hit) Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) else Cursor.getDefaultCursor()
+    }
+
+    fun invalidated() {
+        setSelectedNode(selectedNode)
     }
 }
