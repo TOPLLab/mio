@@ -271,8 +271,10 @@ class InteractiveDebugger(
             for (component in scrollPane.gutter.components) {
                 if (component is IconRowHeader) {
                     component.addMouseListener(object : MouseListener {
-                        override fun mouseClicked(p0: MouseEvent) {
-                            val line = textArea.getLineOfOffset(textArea.viewToModel2D(p0.point))
+                        override fun mouseClicked(me: MouseEvent) {}
+
+                        override fun mousePressed(me: MouseEvent) {
+                            val line = textArea.getLineOfOffset(textArea.viewToModel2D(me.point))
                             try {
                                 val addr = sourceMapping.getPcForLine(line + 1, currentFileName!!)
                                 if (component.getTrackingIcons(line).isNotEmpty()) {
@@ -284,8 +286,6 @@ class InteractiveDebugger(
                                 component.toggleBookmark(line)
                             }
                         }
-
-                        override fun mousePressed(p0: MouseEvent?) {}
 
                         override fun mouseReleased(p0: MouseEvent?) {}
 
