@@ -318,6 +318,9 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
     fun removeBreakpoint(address: Int) {
         send(7, String.format("%08x", address))
         messageQueue.waitForResponse("BP $address!")
+
+        val s = checkpoints.last()!!.snapshot
+        s.breakpoints = s.breakpoints!!.toMutableList() - address
     }
     private fun internalContinueFor(n: Int) {
         //Thread.sleep(n * 1L)
