@@ -266,13 +266,15 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             return
         }
 
-        checkpoints.removeLast() // Remove current state, we don't need to restore this, we are already in this state.
+        val currentState = checkpoints.removeLast() // Remove current state, we don't need to restore this, we are already in this state.
         val nSnapshots = checkpoints.subList(checkpoints.size - n, checkpoints.size).toList()
         for (checkpoint in nSnapshots.reversed()) {
             if (checkpoint != null && (checkpoint.snapshot.pc in binaryInfo.after_primitive_calls || nSnapshots.first() == checkpoint)) {
             //if (snapshot != null) {
                 println("Snapshot to ${checkpoint.snapshot.pc}")
-                loadSnapshot(checkpoint.snapshot)
+                val s = checkpoint.snapshot
+                s.breakpoints = currentState!!.snapshot.breakpoints
+                loadSnapshot(s)
             }
             stepDone()
         }
@@ -287,7 +289,9 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             for (checkpoint in checkpoints.reversed()) {
                 if (checkpoint != null) {
                     println("Jumping to ${checkpoint.snapshot.pc}")
-                    loadSnapshot(checkpoint.snapshot)
+                    val s = checkpoint.snapshot
+                    s.breakpoints = currentState!!.snapshot.breakpoints
+                    loadSnapshot(s)
                     break
                 }
                 stepForward++
