@@ -139,7 +139,7 @@ data class WOODDumpResponse(
     val pc: Int?,
     val pc_error: Int?,
     val exception_msg: String?,
-    val breakpoints: List<Int>?,
+    var breakpoints: List<Int>?,
     val stack: List<WasmStackValue>?,
     val callstack: List<Frame>?,
     val globals: List<WasmStackValue>?,
@@ -198,7 +198,8 @@ class WOODState(woodResponse: WOODDumpResponse) {
         // |      Header       |        Breakpoints
         // | BPState  | Nr BPS |     BP1          | BP2 | ...
         // |  2 bytes |   1*2  | serializePointer |
-        if (this.woodResponse.breakpoints == null) {
+        val bps = this.woodResponse.breakpoints
+        if (bps == null) {
             return
         }
         println("==============")
@@ -207,7 +208,7 @@ class WOODState(woodResponse: WOODDumpResponse) {
         val ws = this
         val nrBytesUsedForAmountBPs = 1 * 2
         val headerSize = ExecutionStateType.breakpointState.hexStr.length + nrBytesUsedForAmountBPs
-        var breakpoints = this.woodResponse.breakpoints.map{ bp -> ws.serializePointer(bp) }
+        var breakpoints = bps.map{ bp -> ws.serializePointer(bp) }
         while (breakpoints.size != 0) {
             val fits = stateMsgs.howManyFit(headerSize, breakpoints)
             if (fits == 0) {

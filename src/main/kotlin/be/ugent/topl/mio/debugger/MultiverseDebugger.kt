@@ -214,13 +214,13 @@ class MultiverseDebugger(
     }
 
     override fun continueFor(n: Int) {
-        var destinationNode = graph.currentNode
+        /*var destinationNode = graph.currentNode
         for (i in 0 ..< n) {
             destinationNode = destinationNode.nextNode(overrides)
-        }
+        }*/
         super.continueFor(n)
 
-        graph.currentNode = destinationNode
+        //graph.currentNode = destinationNode
         graphUpdated()
     }
 

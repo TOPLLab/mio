@@ -307,6 +307,9 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
     fun addBreakpoint(address: Int) {
         send(6, String.format("%08x", address))
         messageQueue.waitForResponse("BP $address!")
+
+        val s = checkpoints.last()!!.snapshot
+        s.breakpoints = s.breakpoints!!.toMutableList() + address
     }
     fun removeBreakpoint(address: Int) {
         send(7, String.format("%08x", address))

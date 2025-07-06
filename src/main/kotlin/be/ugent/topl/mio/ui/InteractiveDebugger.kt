@@ -499,6 +499,12 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
             followButton.isEnabled = false
             customButton.isEnabled = false
             thread {
+                // Disable breakpoints
+                val breakpointsStart = multiverseDebugger.checkpoints.last()!!.snapshot.breakpoints!!
+                for (breakpoint in breakpointsStart) {
+                    multiverseDebugger.removeBreakpoint(breakpoint)
+                }
+
                 multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
 
                 val backwardsLength = graphPanel.selectedPath!!.first.size
@@ -541,7 +547,10 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                     }
                 }
                 graphPanel.repaint()
-                //Thread.sleep(1000)
+                // Re-enable breakpoints
+                for (breakpoint in breakpointsStart) {
+                    multiverseDebugger.addBreakpoint(breakpoint)
+                }
                 stateChanged(multiverseDebugger.checkpoints.last(), 1.0)
                 //debugger.continueFor(forwardPath.size - 1)
 
