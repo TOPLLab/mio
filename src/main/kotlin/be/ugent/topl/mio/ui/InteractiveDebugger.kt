@@ -68,14 +68,16 @@ class InteractiveDebugger(
     private val flashButton = JButton().apply {
         toolTipText = "Upload module to microcontroller"
     }
+    private val allButtons = listOf(pauseButton, stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton, flashButton)
     private val pausedOnlyButtons = listOf(stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton)
     private var paused = false
 
     private val textArea = RSyntaxTextArea()
     private val scrollPane = RTextScrollPane(textArea, true)
-    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) {
+    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) { inProgress ->
         updateStepBackButton()
         updatePcLabel()
+        allButtons.forEach { it.isEnabled = !inProgress }
         println("Update UI state")
     }
     private val watchWindow = WatchWindow()
@@ -430,7 +432,7 @@ class ContinueForAction(val debugger: Debugger, var n: Int) : MultiverseAction {
     }
 }
 
-class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: () -> Unit) : JPanel() {
+class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: (b: Boolean) -> Unit) : JPanel() {
     private val graphPanel = GraphPanel(graph)
     private val mockPanel = OverridesPanel()
     private val concolicButton = JButton("Suggest interesting paths")
@@ -485,7 +487,9 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
         }
 
         followButton.addActionListener {
+            stateChanged(true)
             followButton.isEnabled = false
+            customButton.isEnabled = false
             thread {
                 multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
 
@@ -494,7 +498,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                     graphPanel.completedPath.add(backwardPath.removeFirst())
                     graphPanel.repaint()
                     if (multiverseDebugger.checkpoints.last() != null)
-                        stateChanged()
+                        stateChanged(true)
                 }
 
                 val forwardPath = graphPanel.selectedPath!!.second
@@ -518,7 +522,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 graphPanel.completedPath.addAll(forwardPath.subList(0, forwardPath.size - 1))
                 graphPanel.repaint()
                 //Thread.sleep(1000)
-                stateChanged()
+                stateChanged(false)
                 //debugger.continueFor(forwardPath.size - 1)
 
                 graphPanel.completedPath.add(forwardPath.last())
@@ -532,6 +536,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
 
                 graphPanel.clearSelection()
+                customButton.isEnabled = true
             }
         }
 
