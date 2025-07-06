@@ -514,7 +514,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                     stateChanged(multiverseDebugger.checkpoints.last(), finishedSteps / totalLength.toDouble())
                 }
 
-                val forwardPath = graphPanel.selectedPath!!.second
+                val forwardPath = graphPanel.selectedPath!!.second.toMutableList()
                 val actionPath = mutableListOf<MultiverseAction>()
                 for (i in 1..<forwardPath.size) {
                     val a = forwardPath[i - 1]
@@ -534,9 +534,12 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                     if (action is ContinueForAction) {
                         finishedSteps += action.n
                         stateChanged(multiverseDebugger.checkpoints.last(), finishedSteps / totalLength.toDouble())
+                        repeat(action.n) {
+                            graphPanel.completedPath.add(forwardPath.removeFirst())
+                        }
+                        graphPanel.repaint()
                     }
                 }
-                graphPanel.completedPath.addAll(forwardPath.subList(0, forwardPath.size - 1))
                 graphPanel.repaint()
                 //Thread.sleep(1000)
                 stateChanged(multiverseDebugger.checkpoints.last(), 1.0)
