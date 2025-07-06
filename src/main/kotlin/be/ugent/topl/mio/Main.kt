@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
             val startScreen = StartScreen(config)
             startScreen.isVisible = true
         } catch(_: FileNotFoundException) {
-            JOptionPane.showMessageDialog(null, "Configuration file ~/.mio/debugger.properties not found!\nPlease read the \"Configuration\" section of the documentation.", "Invalid configuration", JOptionPane.ERROR_MESSAGE)
+            JOptionPane.showMessageDialog(null, "Configuration file ${DebuggerConfig.configDir}/debugger.properties not found!\nPlease read the \"Configuration\" section of the documentation.", "Invalid configuration", JOptionPane.ERROR_MESSAGE)
         }
         return
     }

@@ -557,7 +557,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 primitiveNameTextField.selectedItem = currentNode.primitive
             }
 
-            val relations = if (File(config.configDir + "/program.constraints").exists()) ConstraintParser.parseFile("test.constraints") else listOf()
+            val relations = if (File(DebuggerConfig.configDir + "/program.constraints").exists()) ConstraintParser.parseFile("test.constraints") else listOf()
 
             fun handleRelations() {
                 returnValueTextField.isEnabled = true

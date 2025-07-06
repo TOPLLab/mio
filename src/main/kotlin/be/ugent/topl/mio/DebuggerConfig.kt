@@ -5,7 +5,9 @@ import java.util.*
 
 class DebuggerConfig {
     private val properties = Properties()
-    val configDir = "${System.getenv("HOME")}/.mio"
+    companion object {
+        val configDir = "${System.getenv("HOME")}/.mio"
+    }
     init {
         properties.load(FileInputStream("$configDir/debugger.properties"))
     }

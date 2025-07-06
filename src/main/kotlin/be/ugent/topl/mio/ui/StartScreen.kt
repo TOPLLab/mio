@@ -49,7 +49,7 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
         }
         mainPanel.add(emulatorCheckbox)
         val recentProperties = Properties()
-        val recentConfig = config.configDir + "/recent.properties"
+        val recentConfig = DebuggerConfig.configDir + "/recent.properties"
         if (File(recentConfig).exists()) {
             recentProperties.load(FileInputStream(recentConfig))
         }
