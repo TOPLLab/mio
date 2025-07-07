@@ -11,7 +11,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.Closeable
 import java.io.File
 import java.util.*
-import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 import kotlin.streams.toList
 
@@ -229,7 +228,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
                 System.err.println("WARNING: Can't go back further!")
                 return
             }
-            stepBack(1, binaryInfo) {}
+            stepBack(1, binaryInfo)
         }
     }
 
@@ -266,13 +265,15 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             return
         }
 
-        checkpoints.removeLast() // Remove current state, we don't need to restore this, we are already in this state.
+        val currentState = checkpoints.removeLast() // Remove current state, we don't need to restore this, we are already in this state.
         val nSnapshots = checkpoints.subList(checkpoints.size - n, checkpoints.size).toList()
         for (checkpoint in nSnapshots.reversed()) {
             if (checkpoint != null && (checkpoint.snapshot.pc in binaryInfo.after_primitive_calls || nSnapshots.first() == checkpoint)) {
             //if (snapshot != null) {
                 println("Snapshot to ${checkpoint.snapshot.pc}")
-                loadSnapshot(checkpoint.snapshot)
+                val s = checkpoint.snapshot
+                s.breakpoints = currentState!!.snapshot.breakpoints
+                loadSnapshot(s)
             }
             stepDone()
         }
@@ -287,7 +288,9 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             for (checkpoint in checkpoints.reversed()) {
                 if (checkpoint != null) {
                     println("Jumping to ${checkpoint.snapshot.pc}")
-                    loadSnapshot(checkpoint.snapshot)
+                    val s = checkpoint.snapshot
+                    s.breakpoints = currentState!!.snapshot.breakpoints
+                    loadSnapshot(s)
                     break
                 }
                 stepForward++
@@ -297,7 +300,10 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
                 checkpoints.removeLast()
             }
             // Step forward to the desired point (which will also add back snapshots onto the snapshot stack)
-            internalContinueFor(stepForward)
+            // We do this without breakpoints because we don't want these to interrupt the forward execution.
+            withoutBreakpoints {
+                internalContinueFor(stepForward)
+            }
         }
 
         // Results:
@@ -307,10 +313,33 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
     fun addBreakpoint(address: Int) {
         send(6, String.format("%08x", address))
         messageQueue.waitForResponse("BP $address!")
+
+        val s = checkpoints.last()!!.snapshot
+        s.breakpoints = s.breakpoints!!.toMutableList() + address
+    }
+    fun enableBreakpoints(breakpoints: List<Int>) {
+        for (breakpoint in breakpoints) {
+            addBreakpoint(breakpoint)
+        }
     }
     fun removeBreakpoint(address: Int) {
         send(7, String.format("%08x", address))
         messageQueue.waitForResponse("BP $address!")
+
+        val s = checkpoints.last()!!.snapshot
+        s.breakpoints = s.breakpoints!!.toMutableList() - address
+    }
+    fun disableAllBreakpoints(): List<Int> {
+        val breakpointsStart = checkpoints.last()!!.snapshot.breakpoints!!
+        for (breakpoint in breakpointsStart) {
+            removeBreakpoint(breakpoint)
+        }
+        return breakpointsStart
+    }
+    fun withoutBreakpoints(f: () -> Unit) {
+        val breakpoints = disableAllBreakpoints()
+        f()
+        enableBreakpoints(breakpoints)
     }
     private fun internalContinueFor(n: Int) {
         //Thread.sleep(n * 1L)

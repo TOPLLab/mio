@@ -5,6 +5,7 @@ import be.ugent.topl.mio.DebuggerConfig
 import be.ugent.topl.mio.connections.Connection
 import be.ugent.topl.mio.debugger.*
 import be.ugent.topl.mio.sourcemap.SourceMap
+import be.ugent.topl.mio.woodstate.Checkpoint
 import be.ugent.topl.mio.woodstate.WOODDumpResponse
 import com.formdev.flatlaf.FlatClientProperties
 import com.formdev.flatlaf.FlatLaf
@@ -68,15 +69,24 @@ class InteractiveDebugger(
     private val flashButton = JButton().apply {
         toolTipText = "Upload module to microcontroller"
     }
+    private val progressBar = JProgressBar().apply {
+        isVisible = false
+    }
+    private val allButtons = listOf(pauseButton, stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton, flashButton)
     private val pausedOnlyButtons = listOf(stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton)
     private var paused = false
 
     private val textArea = RSyntaxTextArea()
     private val scrollPane = RTextScrollPane(textArea, true)
-    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) {
-        updateStepBackButton()
-        updatePcLabel()
-        println("Update UI state")
+    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) { checkpoint, progress ->
+        if (checkpoint != null) {
+            updateStepBackButton()
+            updatePcLabel()
+        }
+        allButtons.forEach { it.isEnabled = progress >= 1.0 }
+        progressBar.isVisible = progress < 1.0
+        progressBar.value = (progress * 100.0).toInt()
+        progressBar.maximum
     }
     private val watchWindow = WatchWindow()
 
@@ -94,12 +104,6 @@ class InteractiveDebugger(
         breakpointIcon.colorFilter.add( Color.black, Color(229, 20, 1), Color(229, 20, 1))
     }
     private var currentFileName = sourceMapping?.getSourceFile(0)
-
-    init {
-        debugger.startReading()
-        debugger.pause()
-        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
-    }
 
     init {
         FlatSVGIcon.ColorFilter.getInstance()
@@ -237,7 +241,6 @@ class InteractiveDebugger(
                 }
             })
         }
-
         val consoleWindow = ConsoleWindow(debugger)
         val consoleToggle = JToggleButton(FlatSVGIcon(javaClass.getResource("/console.svg"))).apply {
             addActionListener {
@@ -252,6 +255,7 @@ class InteractiveDebugger(
             }
         })
         toolBar.add(consoleToggle)
+        toolBar.add(progressBar)
 
         val theme =
             if (!FlatLaf.isLafDark()) Theme.load(javaClass.getResourceAsStream("/light.xml"))
@@ -325,6 +329,20 @@ class InteractiveDebugger(
         })
         defaultCloseOperation = EXIT_ON_CLOSE
         isVisible = true
+    }
+
+    init {
+        debugger.startReading()
+        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
+        pause()
+    }
+
+    private fun pause() {
+        debugger.pause()
+        pauseButton.icon = FlatSVGIcon(continueIcon)
+        paused = !paused
+        updateEnabledButtons()
+        updatePcLabel()
     }
 
     private fun updateEnabledButtons() {
@@ -430,7 +448,7 @@ class ContinueForAction(val debugger: Debugger, var n: Int) : MultiverseAction {
     }
 }
 
-class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: () -> Unit) : JPanel() {
+class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: (c: Checkpoint?, b: Double) -> Unit) : JPanel() {
     private val graphPanel = GraphPanel(graph)
     private val mockPanel = OverridesPanel()
     private val concolicButton = JButton("Suggest interesting paths")
@@ -485,19 +503,32 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
         }
 
         followButton.addActionListener {
+            stateChanged(null, 0.0)
             followButton.isEnabled = false
+            customButton.isEnabled = false
             thread {
+                // Disable breakpoints
+                val breakpointsStart = multiverseDebugger.checkpoints.last()!!.snapshot.breakpoints!!
+                for (breakpoint in breakpointsStart) {
+                    multiverseDebugger.removeBreakpoint(breakpoint)
+                }
+
                 multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
 
+                val backwardsLength = graphPanel.selectedPath!!.first.size
+                val forwardsLength = graphPanel.selectedPath!!.second.size
+                val totalLength = backwardsLength + forwardsLength
                 val backwardPath = graphPanel.selectedPath!!.first.toMutableList()
+                var finishedSteps = 0
                 multiverseDebugger.stepBack(backwardPath.size, multiverseDebugger.wasmBinary.metadata) {
                     graphPanel.completedPath.add(backwardPath.removeFirst())
                     graphPanel.repaint()
-                    if (multiverseDebugger.checkpoints.last() != null)
-                        stateChanged()
+                    val remaining = forwardsLength + backwardPath.size
+                    finishedSteps = totalLength - remaining
+                    stateChanged(multiverseDebugger.checkpoints.last(), finishedSteps / totalLength.toDouble())
                 }
 
-                val forwardPath = graphPanel.selectedPath!!.second
+                val forwardPath = graphPanel.selectedPath!!.second.toMutableList()
                 val actionPath = mutableListOf<MultiverseAction>()
                 for (i in 1..<forwardPath.size) {
                     val a = forwardPath[i - 1]
@@ -514,11 +545,21 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 }
                 for (action in actionPath) {
                     action.doAction()
+                    if (action is ContinueForAction) {
+                        finishedSteps += action.n
+                        stateChanged(multiverseDebugger.checkpoints.last(), finishedSteps / totalLength.toDouble())
+                        repeat(action.n) {
+                            graphPanel.completedPath.add(forwardPath.removeFirst())
+                        }
+                        graphPanel.repaint()
+                    }
                 }
-                graphPanel.completedPath.addAll(forwardPath.subList(0, forwardPath.size - 1))
                 graphPanel.repaint()
-                //Thread.sleep(1000)
-                stateChanged()
+                // Re-enable breakpoints
+                for (breakpoint in breakpointsStart) {
+                    multiverseDebugger.addBreakpoint(breakpoint)
+                }
+                stateChanged(multiverseDebugger.checkpoints.last(), 1.0)
                 //debugger.continueFor(forwardPath.size - 1)
 
                 graphPanel.completedPath.add(forwardPath.last())
@@ -532,6 +573,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
                 multiverseDebugger.printCheckpoints(multiverseDebugger.wasmBinary.metadata)
 
                 graphPanel.clearSelection()
+                customButton.isEnabled = true
             }
         }
 
