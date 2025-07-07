@@ -177,6 +177,8 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     }
 
     fun clearSelection() {
+        selectedPath = null
+        selectedNodes.clear()
         selectedNode = null
     }
 
