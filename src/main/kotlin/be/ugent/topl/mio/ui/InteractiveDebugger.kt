@@ -513,6 +513,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, config
         }
 
         followButton.addActionListener {
+            graphPanel.allowSelection = false
             stateChanged(null, 0.0)
             followButton.isEnabled = false
             customButton.isEnabled = false
@@ -584,6 +585,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, config
 
                 graphPanel.clearSelection()
                 customButton.isEnabled = true
+                graphPanel.allowSelection = true
             }
         }
 

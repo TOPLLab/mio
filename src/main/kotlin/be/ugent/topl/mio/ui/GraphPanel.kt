@@ -45,6 +45,7 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     // Panning
     private var startPos = Point(0, 0)
     var associatedScrollPane: JScrollPane? = null
+    var allowSelection = true
 
     data class Node(val x: Int, val y: Int, val w: Int, val h: Int, val value: MultiverseNode)
 
@@ -186,6 +187,10 @@ class GraphPanel(private val graph: MultiverseGraph) : JPanel(),
     var selectedPath: Pair<List<MultiverseNode>, List<MultiverseNode>>? = null
     var completedPath = mutableSetOf<MultiverseNode>()
     override fun mouseClicked(e: MouseEvent) {
+        if (!allowSelection) {
+            return
+        }
+
         for (node in nodes) {
             if (e.x > node.x && e.y > node.y && e.x < node.x + node.w && e.y < node.y + node.h) {
                 selectedNode = node
