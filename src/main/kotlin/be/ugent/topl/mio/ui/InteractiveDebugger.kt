@@ -3,7 +3,10 @@ package be.ugent.topl.mio.ui
 import WasmBinary
 import be.ugent.topl.mio.DebuggerConfig
 import be.ugent.topl.mio.connections.Connection
-import be.ugent.topl.mio.debugger.*
+import be.ugent.topl.mio.debugger.ConstraintParser
+import be.ugent.topl.mio.debugger.Debugger
+import be.ugent.topl.mio.debugger.MultiverseDebugger
+import be.ugent.topl.mio.debugger.PrimitiveNode
 import be.ugent.topl.mio.sourcemap.SourceMap
 import be.ugent.topl.mio.woodstate.Checkpoint
 import be.ugent.topl.mio.woodstate.WOODDumpResponse
@@ -27,7 +30,6 @@ import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.table.DefaultTableModel
-import javax.swing.text.DefaultCaret
 import kotlin.concurrent.thread
 
 
@@ -76,9 +78,17 @@ class InteractiveDebugger(
     private val pausedOnlyButtons = listOf(stepBackButton, stepOverButton, stepIntoButton, stepLineButton, stepBackLineButton)
     private var paused = false
 
+    init {
+        allButtons.forEach { btn ->
+            btn.addActionListener {
+                multiversePanel.clearSelection()
+            }
+        }
+    }
+
     private val textArea = RSyntaxTextArea()
     private val scrollPane = RTextScrollPane(textArea, true)
-    private val multiversePanel = MultiversePanel(debugger, debugger.graph, config) { checkpoint, progress ->
+    private val multiversePanel = MultiversePanel(debugger, config) { checkpoint, progress ->
         if (checkpoint != null) {
             updateStepBackButton()
             updatePcLabel()
@@ -448,8 +458,8 @@ class ContinueForAction(val debugger: Debugger, var n: Int) : MultiverseAction {
     }
 }
 
-class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph: MultiverseGraph, config: DebuggerConfig, stateChanged: (c: Checkpoint?, b: Double) -> Unit) : JPanel() {
-    private val graphPanel = GraphPanel(graph)
+class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, config: DebuggerConfig, stateChanged: (c: Checkpoint?, b: Double) -> Unit) : JPanel() {
+    private val graphPanel = GraphPanel(multiverseDebugger.graph)
     private val mockPanel = OverridesPanel()
     private val concolicButton = JButton("Suggest interesting paths")
     private var maxInstructions = 50
@@ -503,6 +513,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
         }
 
         followButton.addActionListener {
+            graphPanel.allowSelection = false
             stateChanged(null, 0.0)
             followButton.isEnabled = false
             customButton.isEnabled = false
@@ -574,6 +585,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
 
                 graphPanel.clearSelection()
                 customButton.isEnabled = true
+                graphPanel.allowSelection = true
             }
         }
 
@@ -701,7 +713,13 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, graph:
 
     fun graphChanged() {
         graphPanel.repaint()
+        graphPanel.revalidate()
         //customButton.isEnabled = multiverseDebugger.graph.currentNode is PrimitiveNode
+    }
+
+    fun clearSelection() {
+        graphPanel.clearSelection()
+        graphPanel.repaint()
     }
 
     fun onMockingChanged() {
