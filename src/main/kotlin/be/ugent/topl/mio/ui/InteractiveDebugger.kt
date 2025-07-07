@@ -713,6 +713,7 @@ class MultiversePanel(private val multiverseDebugger: MultiverseDebugger, config
 
     fun graphChanged() {
         graphPanel.repaint()
+        graphPanel.revalidate()
         //customButton.isEnabled = multiverseDebugger.graph.currentNode is PrimitiveNode
     }
 
