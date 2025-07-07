@@ -75,7 +75,7 @@ open class StartScreen(config: DebuggerConfig) : AboutScreen(config) {
 
     private fun startDebugger(binary: File, emulator: Boolean, comPort: String?): Boolean {
         val connection = if (emulator) {
-            ProcessConnection(config.wdcliPath, binary.path, "--no-socket")
+            ProcessConnection(config.wdcliPath, binary.path, "--no-socket", "--paused")
         }
         else {
             if (comPort == null) {

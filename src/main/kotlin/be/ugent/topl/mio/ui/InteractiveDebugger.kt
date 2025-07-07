@@ -106,12 +106,6 @@ class InteractiveDebugger(
     private var currentFileName = sourceMapping?.getSourceFile(0)
 
     init {
-        debugger.startReading()
-        debugger.pause()
-        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
-    }
-
-    init {
         FlatSVGIcon.ColorFilter.getInstance()
             .add( Color.black, debugBlue, debugBlue)
         updateEnabledButtons()
@@ -335,6 +329,20 @@ class InteractiveDebugger(
         })
         defaultCloseOperation = EXIT_ON_CLOSE
         isVisible = true
+    }
+
+    init {
+        debugger.startReading()
+        debugger.setSnapshotPolicy(Debugger.SnapshotPolicy.Checkpointing())
+        pause()
+    }
+
+    private fun pause() {
+        debugger.pause()
+        pauseButton.icon = FlatSVGIcon(continueIcon)
+        paused = !paused
+        updateEnabledButtons()
+        updatePcLabel()
     }
 
     private fun updateEnabledButtons() {
