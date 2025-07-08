@@ -23,7 +23,7 @@ class Benchmarks : DebuggerTestBase() {
     @Test
     fun `Measure impact of checkpointing on forward execution`() {
         val writer = FileWriter(File("results-forward-execution.csv"))
-        writer.write("Policy, Instructions executed, Time elapsed\n")
+        writer.write("Interval,Instructions executed,Time(ms)\n")
         val results = mutableListOf<Triple<Int, Double, Debugger.SnapshotPolicy>>()
         for (policy in listOf(
             Debugger.SnapshotPolicy.None(),
@@ -45,7 +45,7 @@ class Benchmarks : DebuggerTestBase() {
                         totalTime += currentTimeMillis() - startTime
                     }
                 }
-                writer.write("$policy, $n, ${totalTime.toDouble() / times}\n")
+                writer.write("${if(policy is Debugger.SnapshotPolicy.Checkpointing) policy.interval else 0}, $n, ${totalTime.toDouble() / times}\n")
                 writer.flush()
             }
         }

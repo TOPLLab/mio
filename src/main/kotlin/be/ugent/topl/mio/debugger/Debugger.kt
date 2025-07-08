@@ -434,7 +434,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
         class AtEveryInstruction()  : SnapshotPolicy(1) {
             override fun toString() = "Snapshot at every instruction"
         }
-        data class Checkpointing(private val interval: Int = 20) : SnapshotPolicy(2) {
+        data class Checkpointing(val interval: Int = 20) : SnapshotPolicy(2) {
             override fun serialize(): String {
                 return super.serialize() + HexaEncoder.serializeUInt32BE(interval)
             }
