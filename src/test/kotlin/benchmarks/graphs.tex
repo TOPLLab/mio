@@ -78,7 +78,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{0:0}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
 
             \addplot[
             color=color1,
@@ -92,7 +92,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{1:1}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{every instruction}
 
             \addplot[
@@ -107,7 +107,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{5:5}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
 
             \addplot[
             color=color3,
@@ -121,7 +121,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{10:10}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
 
             \addplot[
             color=color4,
@@ -135,7 +135,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{50:50}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
 
             \addplot[
             color=color5,
@@ -149,7 +149,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{100:100}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
 
             \addplot [
             color0,
@@ -215,7 +215,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{0:0}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{no snapshotting}
 
             \addplot[
@@ -239,7 +239,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{5:5}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{5 instructions}
 
             \addplot[
@@ -254,7 +254,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{10:10}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{10 instructions}
 
             \addplot[
@@ -269,7 +269,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{50:50}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{50 instructions}
 
             \addplot[
@@ -284,7 +284,7 @@
             y expr=\thisrow{Normalized Overhead},
             col sep=comma,
             restrict expr to domain={\thisrow{Interval}}{100:100}
-            ] {normalized-results-forward-execution.csv};
+            ] {../../../../normalized-results-forward-execution.csv};
             \addlegendentry{100 instructions}
 
             \addplot [
@@ -376,7 +376,7 @@
             ]
             table[
                 x=t, y=avg_time
-            ] {results-step-back-re-execution.csv};
+            ] {../../../../results-step-back-re-execution.csv};
 
             \addplot [
             color2,
