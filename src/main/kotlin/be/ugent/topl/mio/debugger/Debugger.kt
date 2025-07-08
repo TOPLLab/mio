@@ -260,6 +260,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
         }
         println("count = ${checkpoints.size}")
     }
+
     open fun stepBack(n: Int, binaryInfo: WasmInfo, stepDone: () -> Unit = {}) {
         if (n == 0) {
             return
@@ -272,7 +273,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             //if (snapshot != null) {
                 println("Snapshot to ${checkpoint.snapshot.pc}")
                 val s = checkpoint.snapshot
-                s.breakpoints = currentState!!.snapshot.breakpoints
+                s.breakpoints = currentState?.snapshot?.breakpoints // The current state can be null if the data about this checkpoint was removed.
                 loadSnapshot(s)
             }
             stepDone()
@@ -289,7 +290,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
                 if (checkpoint != null) {
                     println("Jumping to ${checkpoint.snapshot.pc}")
                     val s = checkpoint.snapshot
-                    s.breakpoints = currentState!!.snapshot.breakpoints
+                    s.breakpoints = currentState?.snapshot?.breakpoints
                     loadSnapshot(s)
                     break
                 }
@@ -330,7 +331,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
         s.breakpoints = s.breakpoints!!.toMutableList() - address
     }
     fun disableAllBreakpoints(): List<Int> {
-        val breakpointsStart = checkpoints.last()!!.snapshot.breakpoints!!
+        val breakpointsStart = checkpoints.last()!!.snapshot.breakpoints?: emptyList()
         for (breakpoint in breakpointsStart) {
             removeBreakpoint(breakpoint)
         }
