@@ -1,0 +1,406 @@
+\documentclass[acmsmall,screen,nonacm]{acmart}
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{color}
+
+\pgfplotsset{width=0.8\textwidth,compat=1.9}
+\usepgfplotslibrary{fillbetween}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{statistics}
+
+\pgfplotsset{
+    discard if not/.style 2 args={
+        x filter/.code={
+            \edef\tempa{\thisrow{#1}}
+            \edef\tempb{#2}
+            \ifx\tempa\tempb
+            \else
+                \def\pgfmathresult{inf}
+            \fi
+        }
+    }
+}
+
+\usepackage{tikz}
+\usepackage{xspace}
+
+\begin{document}
+
+\definecolor{color5}{RGB}{105,214,255}
+\definecolor{color4}{RGB}{37,187,255}
+\definecolor{color3}{RGB}{0,153,248}
+\definecolor{color2}{RGB}{0,100,210}
+\definecolor{color1}{RGB}{0,30,130}
+
+\definecolor{color0}{RGB}{242,48,90}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{groupplot}[
+            group style={
+            group size=2 by 1, % Two plots side by side
+            horizontal sep=0.06\textwidth, % Space between plots
+            },
+            width=0.42\textwidth, % Width of each plot
+            xlabel={Instructions executed}, 
+            ylabel={Overhead (rel. \emph{no snapshotting})},
+            table/col sep=comma,
+            xmin=250, xmax=1250,
+            xtick={250, 500, 750, 1000, 1250},
+            tick label style={font=\scriptsize},
+            label style={font=\small},
+            ymin=0,
+            scale only axis,
+            grid=major,
+            legend to name={sharedlegend},
+            legend columns=3,
+            legend style={font=\small}
+            ]
+
+            % First plot with all policies
+            \nextgroupplot[
+            ]
+            % Define the baseline (x-axis at y=0) for the fill
+            \path[name path=axis] (axis cs:250,0) -- (axis cs:1250,0);
+
+            \addplot[
+            color=color0,
+            mark=*,
+            mark options={scale=0.7, fill=color0, draw=none},
+            smooth,
+            name path=1,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{0:0}
+            ] {normalized-results-forward-execution.csv};
+
+            \addplot[
+            color=color1,
+            mark=*,
+            mark options={scale=0.7, fill=color1, draw=none},
+            smooth,
+            name path=2,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{1:1}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{every instruction}
+
+            \addplot[
+            color=color2,
+            mark=*,
+            mark options={scale=0.7, fill=color2, draw=none},
+            smooth,
+            name path=3,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{5:5}
+            ] {normalized-results-forward-execution.csv};
+
+            \addplot[
+            color=color3,
+            mark=*,
+            mark options={scale=0.7, fill=color3, draw=none},
+            smooth,
+            name path=4,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{10:10}
+            ] {normalized-results-forward-execution.csv};
+
+            \addplot[
+            color=color4,
+            mark=*,
+            mark options={scale=0.7, fill=color4, draw=none},
+            smooth,
+            name path=5,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{50:50}
+            ] {normalized-results-forward-execution.csv};
+
+            \addplot[
+            color=color5,
+            mark=*,
+            mark options={scale=0.7, fill=color5, draw=none},
+            smooth,
+            name path=6,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{100:100}
+            ] {normalized-results-forward-execution.csv};
+
+            \addplot [
+            color0,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {1 and axis},
+            ];
+
+            \addplot [
+            color1,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {2 and 3},
+            ];
+
+            \addplot [
+            color2,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {3 and 4},
+            ];
+
+            \addplot [
+            color3,
+            fill opacity=0.4,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {4 and 5},
+            ];
+
+            \addplot [
+            color4,
+            fill opacity=0.4,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {5 and 6},
+            ];
+
+            % Second plot (excluding "Snapshot at every instruction")
+            \nextgroupplot[
+            ylabel={},
+            ]
+            % Define the baseline (x-axis at y=0) for the fill
+            \path[name path=axis] (axis cs:250,0) -- (axis cs:1250,0);
+
+            \addplot[
+            color=color0,
+            mark=*,
+            mark options={scale=0.7, fill=color0, draw=none},
+            smooth,
+            name path=7,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{0:0}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{no snapshotting}
+
+            \addplot[
+            color=color1,
+            mark=*,
+            mark options={scale=0.7, fill=color1, draw=none},
+            smooth,
+            name path=2,
+            ] coordinates {(0,0) (0,0)};
+            \addlegendentry{every instruction}
+
+            \addplot[
+            color=color2,
+            mark=*,
+            mark options={scale=0.7, fill=color2, draw=none},
+            smooth,
+            name path=8,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{5:5}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{5 instructions}
+
+            \addplot[
+            color=color3,
+            mark=*,
+            mark options={scale=0.7, fill=color3, draw=none},
+            smooth,
+            name path=9,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{10:10}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{10 instructions}
+
+            \addplot[
+            color=color4,
+            mark=*,
+            mark options={scale=0.7, fill=color4, draw=none},
+            smooth,
+            name path=10,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{50:50}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{50 instructions}
+
+            \addplot[
+            color=color5,
+            mark=*,
+            mark options={scale=0.7, fill=color5, draw=none},
+            smooth,
+            name path=11,
+            ] 
+            table[
+            x={Instructions executed},
+            y expr=\thisrow{Normalized Overhead},
+            col sep=comma,
+            restrict expr to domain={\thisrow{Interval}}{100:100}
+            ] {normalized-results-forward-execution.csv};
+            \addlegendentry{100 instructions}
+
+            \addplot [
+            color0,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {7 and axis},
+            ];
+
+            \addplot [
+            color2,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {8 and 9},
+            ];
+
+            \addplot [
+            color3,
+            fill opacity=0.6,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {9 and 10},
+            ];
+
+            \addplot [
+            color4,
+            fill opacity=0.4,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {10 and 11},
+            ];
+
+            \addplot [
+            color5,
+            fill opacity=0.4,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {11 and 7},
+            ];
+        \end{groupplot}
+
+        \coordinate (c) at (current bounding box.north);
+        \node at (c) [anchor=south] {\pgfplotslegendfromname{sharedlegend}};
+    \end{tikzpicture}
+    \caption{Comparison of execution time of \textit{no snapshotting} with \textit{snapshotting for every instructions}, and different checkpointing intervals; \textit{every 5, 10, 50, and 100 instructions}.
+        The performance overhead is shown as execution time relative to the execution time when taking no snapshots.
+    Left: Comparison of all checkpointing policies, snapshotting, and no snapshotting.
+    Right: Comparison of all checkpointing policies with no snapshotting. The averages are taken over 10 runs of the same program.}
+    \label{fig:snapshotting-performance}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            xlabel={Amount of re-executed instructions},
+            ylabel={Average time to step back (ms)},
+            table/col sep=comma,
+            xmin=0, xmax=30000,
+            ymin=0, ymax=1200,
+            xtick={0,5000,10000,15000,20000,25000,30000},
+            axis lines=box,
+            xtick pos=bottom,
+            ytick pos=left,
+            axis line style={-},
+            tick align=inside,
+            scaled x ticks=base 10:-3,
+            ytick={0,100,200,300,400,500,600,700,800,900,1000},
+            legend pos=south east,
+            grid=both,
+            height=7cm,
+            ]
+
+            % Define the baseline (x-axis at y=0) for the fill
+            \path[name path=axis] (axis cs:0,0) -- (axis cs:30000,0);
+
+            \addplot[
+            color=color2,
+            mark=*,
+            mark options={scale=0.7, fill=color2, draw=none},
+            name path=chart,
+            ]
+            table[
+                x=t, y=avg_time
+            ] {results-step-back-re-execution.csv};
+
+            \addplot [
+            color2,
+            fill opacity=0.4,
+            smooth,
+            forget plot,       % No legend entry for the fill
+            ] fill between [
+            of = {chart and axis},
+            ];
+
+            \addplot[
+            dashed,
+            color=color2,
+            forget plot
+            ]
+            coordinates {(0, 468.0) (30000, 468.0)};
+
+            %\addplot[domain=0:30000, samples=2, color=red] {692.63 + 0.0110867486 * x}; % show linear increase
+
+            \node at (axis cs:28500, 468) [anchor=south] {\scriptsize 468 ms};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Plot showing the average time to step back as the number of instructions requiring re-execution increases in increments of one thousand. Averages are calculated over 10 runs of the same program.}
+    \label{fig:stepping-back-performance}
+\end{figure}
+
+\end{document}
