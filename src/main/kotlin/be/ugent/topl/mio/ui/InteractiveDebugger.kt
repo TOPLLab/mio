@@ -276,6 +276,33 @@ class InteractiveDebugger(
         textArea.isEditable = false
         textArea.text = sourceMapping?.getSourceFile(0) ?: "Source mapping unavailable"
         textArea.syntaxEditingStyle = sourceMapping?.getStyle() ?: SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
+        textArea.popupMenu.add(JMenuItem("Disassemble").apply {
+            addActionListener {
+                val command = listOf("wasm-objdump", "-d", wasmFile)
+                println("Running command: ${command.joinToString(" ") }")
+                val process = ProcessBuilder(command).redirectErrorStream(true).start()
+                process.waitFor()
+                val result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
+                val frame = JFrame("Disassembly")
+                val disassemblyTextArea = RSyntaxTextArea(result)
+                disassemblyTextArea.isEditable = false
+                frame.add(RTextScrollPane(disassemblyTextArea))
+                frame.minimumSize = Dimension(200, 200)
+                frame.preferredSize = Dimension(400, 600)
+                frame.isVisible = true
+
+                // Highlight line
+                val pc = debugger.checkpoints.last()?.snapshot?.pc
+                val lines = result.lines()
+                for (lineIndex in lines.indices) {
+                    val line = lines[lineIndex]
+                    if (line.trim().startsWith(String.format("%06x", pc))) {
+                        println(line)
+                        disassemblyTextArea.addLineHighlight(lineIndex, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+                    }
+                }
+            }
+        })
         scrollPane.isIconRowHeaderEnabled = true
         scrollPane.gutter.iconRowHeaderInheritsGutterBackground = true
         if (sourceMapping != null) {
@@ -756,6 +783,9 @@ class WatchWindow : JTable() {
         tableModel.addRow(arrayOf("pc", "i32", String.format("0x%x", snapshot.pc)))
         for (global in snapshot.globals!!) {
             tableModel.addRow(arrayOf("global ${global.idx}", global.type, global.value))
+        }
+        if (snapshot.callstack!!.isNotEmpty()) {
+            tableModel.addRow(arrayOf("fp", "i32", snapshot.callstack.last().fp))
         }
         val stack = snapshot.stack!!
         for (stackElement in stack) {
