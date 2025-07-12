@@ -282,9 +282,12 @@ class InteractiveDebugger(
                 println("Running command: ${command.joinToString(" ") }")
                 val process = ProcessBuilder(command).redirectErrorStream(true).start()
                 process.waitFor()
-                val result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
+                var result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
+                val startString = "Code Disassembly:\n\n"
+                result = result.substring(result.indexOf(startString) + startString.length)
                 val frame = JFrame("Disassembly")
                 val disassemblyTextArea = RSyntaxTextArea(result)
+                disassemblyTextArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
                 disassemblyTextArea.isEditable = false
                 frame.add(RTextScrollPane(disassemblyTextArea))
                 frame.minimumSize = Dimension(200, 200)
@@ -298,7 +301,6 @@ class InteractiveDebugger(
                     for (lineIndex in lines.indices) {
                         val line = lines[lineIndex]
                         if (line.trim().startsWith(String.format("%06x", pc))) {
-                            println(line)
                             disassemblyTextArea.removeAllLineHighlights()
                             disassemblyTextArea.addLineHighlight(lineIndex, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
                         }
