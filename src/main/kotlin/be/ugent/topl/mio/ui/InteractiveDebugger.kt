@@ -276,6 +276,45 @@ class InteractiveDebugger(
         textArea.isEditable = false
         textArea.text = sourceMapping?.getSourceFile(0) ?: "Source mapping unavailable"
         textArea.syntaxEditingStyle = sourceMapping?.getStyle() ?: SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
+        textArea.popupMenu.add(JMenuItem("Disassemble").apply {
+            addActionListener {
+                val command = listOf("wasm-objdump", "-d", wasmFile)
+                println("Running command: ${command.joinToString(" ") }")
+                val process = ProcessBuilder(command).redirectErrorStream(true).start()
+                process.waitFor()
+                var result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
+                val startString = "Code Disassembly:\n\n"
+                result = result.substring(result.indexOf(startString) + startString.length)
+                val frame = JFrame("Disassembly")
+                val disassemblyTextArea = RSyntaxTextArea(result)
+                disassemblyTextArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
+                disassemblyTextArea.isEditable = false
+                frame.add(RTextScrollPane(disassemblyTextArea))
+                frame.minimumSize = Dimension(200, 200)
+                frame.preferredSize = Dimension(400, 600)
+                frame.isVisible = true
+
+                fun highlightCurrentLine(currentState: WOODDumpResponse) {
+                    // IDEA: Wood maybe be fun to highlight the instructions associated with the current line with the same color.
+                    val pc = currentState.pc!!
+                    val lines = result.lines()
+                    for (lineIndex in lines.indices) {
+                        val line = lines[lineIndex]
+                        if (line.trim().startsWith(String.format("%06x", pc))) {
+                            disassemblyTextArea.removeAllLineHighlights()
+                            disassemblyTextArea.addLineHighlight(lineIndex, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+                        }
+                    }
+                }
+
+                highlightCurrentLine(debugger.checkpoints.last()!!.snapshot)
+
+                // Highlight line
+                debugger.registerCurrentStateListener { currentState ->
+                    highlightCurrentLine(currentState)
+                }
+            }
+        })
         scrollPane.isIconRowHeaderEnabled = true
         scrollPane.gutter.iconRowHeaderInheritsGutterBackground = true
         if (sourceMapping != null) {
@@ -756,6 +795,9 @@ class WatchWindow : JTable() {
         tableModel.addRow(arrayOf("pc", "i32", String.format("0x%x", snapshot.pc)))
         for (global in snapshot.globals!!) {
             tableModel.addRow(arrayOf("global ${global.idx}", global.type, global.value))
+        }
+        if (snapshot.callstack!!.isNotEmpty()) {
+            tableModel.addRow(arrayOf("fp", "i32", snapshot.callstack.last().fp))
         }
         val stack = snapshot.stack!!
         for (stackElement in stack) {
