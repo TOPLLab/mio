@@ -291,15 +291,25 @@ class InteractiveDebugger(
                 frame.preferredSize = Dimension(400, 600)
                 frame.isVisible = true
 
-                // Highlight line
-                val pc = debugger.checkpoints.last()?.snapshot?.pc
-                val lines = result.lines()
-                for (lineIndex in lines.indices) {
-                    val line = lines[lineIndex]
-                    if (line.trim().startsWith(String.format("%06x", pc))) {
-                        println(line)
-                        disassemblyTextArea.addLineHighlight(lineIndex, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+                fun highlightCurrentLine(currentState: WOODDumpResponse) {
+                    // IDEA: Wood maybe be fun to highlight the instructions associated with the current line with the same color.
+                    val pc = currentState.pc!!
+                    val lines = result.lines()
+                    for (lineIndex in lines.indices) {
+                        val line = lines[lineIndex]
+                        if (line.trim().startsWith(String.format("%06x", pc))) {
+                            println(line)
+                            disassemblyTextArea.removeAllLineHighlights()
+                            disassemblyTextArea.addLineHighlight(lineIndex, if (!FlatLaf.isLafDark()) Color(255, 255, 186, 255) else Color(207, 207, 131, 75))
+                        }
                     }
+                }
+
+                highlightCurrentLine(debugger.checkpoints.last()!!.snapshot)
+
+                // Highlight line
+                debugger.registerCurrentStateListener { currentState ->
+                    highlightCurrentLine(currentState)
                 }
             }
         })
