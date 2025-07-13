@@ -10,6 +10,7 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import java.io.IOException
 import javax.swing.JFrame
 
 class DisassemblyWindow(debugger: Debugger, wasmFile: String) : JFrame("Disassembly") {
@@ -36,13 +37,18 @@ class DisassemblyWindow(debugger: Debugger, wasmFile: String) : JFrame("Disassem
     }
 
     private fun disassemble(wasmFile: String): String {
-        val command = listOf("wasm-objdump", "-d", wasmFile)
-        println("Running command: ${command.joinToString(" ") }")
-        val process = ProcessBuilder(command).redirectErrorStream(true).start()
-        process.waitFor()
-        var result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
-        val startString = "Code Disassembly:\n\n"
-        return result.substring(result.indexOf(startString) + startString.length)
+        try {
+            val command = listOf("wasm-objdump", "-d", wasmFile)
+            println("Running command: ${command.joinToString(" ")}")
+            val process = ProcessBuilder(command).redirectErrorStream(true).start()
+            process.waitFor()
+            var result = process.inputStream.readAllBytes().toString(Charsets.UTF_8)
+            val startString = "Code Disassembly:\n\n"
+            return result.substring(result.indexOf(startString) + startString.length)
+        } catch (e: IOException) {
+            // Catch exception and add additional information.
+            throw IOException("An error occurred when attempting to disassemble the program, make sure the The WebAssembly Binary Toolkit is installed on your system.\n" + e.message)
+        }
     }
 
     private fun highlightCurrentLine(currentState: WOODDumpResponse) {

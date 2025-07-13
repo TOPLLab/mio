@@ -26,6 +26,7 @@ import java.awt.event.MouseListener
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.io.File
+import java.io.IOException
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -278,7 +279,11 @@ class InteractiveDebugger(
         textArea.syntaxEditingStyle = sourceMapping?.getStyle() ?: SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
         textArea.popupMenu.add(JMenuItem("Disassemble").apply {
             addActionListener {
-                DisassemblyWindow(debugger, wasmFile)
+                try {
+                    DisassemblyWindow(debugger, wasmFile)
+                } catch(e: IOException) {
+                    JOptionPane.showMessageDialog(null, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+                }
             }
         })
         scrollPane.isIconRowHeaderEnabled = true
