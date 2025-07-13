@@ -327,7 +327,7 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
     }
 
     fun removeCurrentStateListener(listener: (WOODDumpResponse) -> Unit) {
-        stateListeners.add(listener)
+        stateListeners.remove(listener)
     }
 
     fun addBreakpoint(address: Int) {
