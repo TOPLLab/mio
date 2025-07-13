@@ -26,6 +26,7 @@ import java.awt.event.MouseListener
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.io.File
+import java.io.IOException
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -276,6 +277,15 @@ class InteractiveDebugger(
         textArea.isEditable = false
         textArea.text = sourceMapping?.getSourceFile(0) ?: "Source mapping unavailable"
         textArea.syntaxEditingStyle = sourceMapping?.getStyle() ?: SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86
+        textArea.popupMenu.add(JMenuItem("Disassemble").apply {
+            addActionListener {
+                try {
+                    DisassemblyWindow(debugger, wasmFile)
+                } catch(e: IOException) {
+                    JOptionPane.showMessageDialog(null, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+                }
+            }
+        })
         scrollPane.isIconRowHeaderEnabled = true
         scrollPane.gutter.iconRowHeaderInheritsGutterBackground = true
         if (sourceMapping != null) {
@@ -756,6 +766,9 @@ class WatchWindow : JTable() {
         tableModel.addRow(arrayOf("pc", "i32", String.format("0x%x", snapshot.pc)))
         for (global in snapshot.globals!!) {
             tableModel.addRow(arrayOf("global ${global.idx}", global.type, global.value))
+        }
+        if (snapshot.callstack!!.isNotEmpty()) {
+            tableModel.addRow(arrayOf("fp", "i32", snapshot.callstack.last().fp))
         }
         val stack = snapshot.stack!!
         for (stackElement in stack) {

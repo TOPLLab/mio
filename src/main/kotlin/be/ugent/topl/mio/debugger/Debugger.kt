@@ -103,8 +103,8 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
             }
         }
     }
-    val history = mutableListOf<WOODDumpResponse>()
     val checkpoints = mutableListOf<Checkpoint?>()
+    private val stateListeners = mutableListOf<(WOODDumpResponse) -> Unit>()
     private var commandBreakpoint = false
 
     init {
@@ -310,7 +310,26 @@ open class Debugger(private val connection: Connection, start: Boolean = true, p
         // Results:
         checkpointsUpdated()
     }
-    open fun checkpointsUpdated() {}
+
+    open fun checkpointsUpdated() {
+        val currentState = checkpoints.last()
+        if (currentState == null) {
+            return
+        }
+
+        for (listener in stateListeners) {
+            listener(currentState.snapshot)
+        }
+    }
+
+    fun registerCurrentStateListener(listener: (WOODDumpResponse) -> Unit) {
+        stateListeners.add(listener)
+    }
+
+    fun removeCurrentStateListener(listener: (WOODDumpResponse) -> Unit) {
+        stateListeners.remove(listener)
+    }
+
     fun addBreakpoint(address: Int) {
         send(6, String.format("%08x", address))
         messageQueue.waitForResponse("BP $address!")
