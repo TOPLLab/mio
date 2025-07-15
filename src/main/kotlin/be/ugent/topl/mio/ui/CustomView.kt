@@ -5,13 +5,9 @@ import be.ugent.topl.mio.woodstate.WOODDumpResponse
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
-import java.awt.Color
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.RenderingHints
+import java.awt.*
 import javax.script.ScriptEngineManager
-import javax.swing.JPanel
-import javax.swing.JSplitPane
+import javax.swing.*
 
 class CustomView(debugger: Debugger) : AbstractView(debugger) {
     private val textArea = RSyntaxTextArea().apply {
@@ -42,13 +38,40 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
     private val scriptEngine = ScriptEngineManager().getEngineByName("nashorn")
     init {
         title = "Custom view"
-        add(JSplitPane(
+        val scrollPane = RTextScrollPane(textArea)
+        val splitPane = JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
             panel,
-            RTextScrollPane(textArea)).apply {
-                resizeWeight = 0.5
+            scrollPane
+        ).apply {
+            resizeWeight = 0.5
+        }
+        val box = JPanel()
+        box.layout = BorderLayout()
+        //val topBar = Box.createHorizontalBox()
+        val topBar = JToolBar()
+        topBar.border = BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        //topBar.add(JLabel("View name"))
+        topBar.add(Box.createHorizontalGlue())
+        topBar.add(JButton("View").apply {
+            var lastPos = 0
+            addActionListener {
+                text = if (scrollPane.isVisible) {
+                    lastPos = splitPane.dividerLocation
+                    "Edit"
+                }
+                else {
+                    splitPane.dividerLocation = lastPos
+                    "View"
+                }
+                scrollPane.isVisible = !scrollPane.isVisible
+                revalidate()
+                println(splitPane.dividerLocation)
             }
-        )
+        })
+        box.add(topBar, BorderLayout.NORTH)
+        box.add(splitPane, BorderLayout.CENTER)
+        add(box)
         //language=JavaScript
         textArea.text = """
             g.color = black
