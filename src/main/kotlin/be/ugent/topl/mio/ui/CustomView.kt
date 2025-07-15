@@ -7,7 +7,8 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 import java.awt.Color
 import java.awt.Graphics
-import java.sql.Blob
+import java.awt.Graphics2D
+import java.awt.RenderingHints
 import javax.script.ScriptEngineManager
 import javax.swing.JPanel
 import javax.swing.JSplitPane
@@ -23,6 +24,8 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
 
         override fun paintComponent(g: Graphics) {
             super.paintComponent(g)
+            val g2 = g as Graphics2D
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
             g.color = Color.black
 
             scriptEngine.put("state", currentState)
