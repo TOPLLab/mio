@@ -286,6 +286,27 @@ class InteractiveDebugger(
                 }
             }
         })
+        textArea.popupMenu.add(JMenuItem("Test view").apply {
+            addActionListener {
+                object : AbstractView(debugger) {
+                    private val pcCounterLabel = JLabel("test")
+
+                    init {
+                        add(pcCounterLabel)
+                        updateView(debugger.checkpoints.last()!!.snapshot)
+                    }
+
+                    override fun updateView(currentState: WOODDumpResponse) {
+                        pcCounterLabel.text = currentState.pc.toString()
+                    }
+                }
+            }
+        })
+        textArea.popupMenu.add(JMenuItem("Custom view").apply {
+            addActionListener {
+                CustomView(debugger)
+            }
+        })
         scrollPane.isIconRowHeaderEnabled = true
         scrollPane.gutter.iconRowHeaderInheritsGutterBackground = true
         if (sourceMapping != null) {
