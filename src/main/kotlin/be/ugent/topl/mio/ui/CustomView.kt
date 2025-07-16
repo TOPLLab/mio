@@ -12,10 +12,12 @@ import javax.swing.*
 class CustomView(debugger: Debugger) : AbstractView(debugger) {
     private val textArea = RSyntaxTextArea().apply {
         syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
+        //syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_KOTLIN
     }
     private val panel = object : JPanel() {
         private val scriptEngine = ScriptEngineManager().getEngineByName("nashorn")
-        var script = ""
+        //private val scriptEngine = ScriptEngineManager().getEngineByName("kotlin")
+        //private val scriptEngine = ScriptEngineManager().getEngineByExtension("kts")
         var currentState: WOODDumpResponse? = null
 
         override fun paintComponent(g: Graphics) {
@@ -31,7 +33,14 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
             scriptEngine.put("green", Color.green)
             scriptEngine.put("blue", Color.blue)
             scriptEngine.put("orange", Color.orange)
-            scriptEngine.eval(script)
+            val startTime = System.currentTimeMillis()
+            scriptEngine.eval(getScript())
+            println("Elapsed ${System.currentTimeMillis() - startTime}")
+        }
+
+        fun getScript(): String {
+            return textArea.text
+            //return "import java.awt.Color\nval g2 = g as java.awt.Graphics2D\n" + textArea.text // TODO: When catching exceptions we should shift the line number with 1
         }
     }
     // TODO: Maybe we can use kts, kotlin script?
@@ -53,6 +62,12 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
         topBar.border = BorderFactory.createEmptyBorder(5, 5, 5, 5)
         //topBar.add(JLabel("View name"))
         topBar.add(Box.createHorizontalGlue())
+        val reloadButton = JButton("Reload").apply {
+            addActionListener {
+                panel.repaint()
+            }
+        }
+        topBar.add(reloadButton)
         topBar.add(JButton("View").apply {
             var lastPos = 0
             addActionListener {
@@ -65,6 +80,7 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
                     "View"
                 }
                 scrollPane.isVisible = !scrollPane.isVisible
+                reloadButton.isVisible = scrollPane.isVisible
                 revalidate()
                 println(splitPane.dividerLocation)
             }
@@ -122,6 +138,43 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
             }
         }*/
         """.trimIndent()
+        //language=kotlin
+        textArea.text = $$"""
+            g2.color = Color.black
+            g2.drawString("pc = 0x${state.pc?.toString(16)}", 0, 90)
+            
+            val colorMap = mutableMapOf<String,Color>(
+                "p15" to Color.red,
+                "p16" to Color.orange,
+                "p17" to Color.green
+            )
+            
+            for (el in state.io!!) {
+                if (el.key.startsWith("p")) {
+                    g2.color = if (el.value == 1) colorMap.getOrDefault(el.key, Color.red) 
+                                else Color.black
+                    
+                    val index = Integer.parseInt(el.key.substring(1))
+                    g2.fillOval(5 + (index % 15) * 35, 5 + (index / 15) * 35, 30, 30)
+                }
+            }
+        """.trimIndent()
+        textArea.text = """
+            var colorMap = {
+                "p15": red,
+                "p16": orange,
+                "p17": green
+            }
+
+            for each (el in state.io) {
+                if (el.key.startsWith("p")) {
+                    g.color = el.value === 1 ? colorMap[el.key] || red : black
+                    
+                    var index = parseInt(el.key.substring(1))
+                    g.fillOval(5 + (index % 15) * 35, 5 + Math.floor(index / 15) * 35, 30, 30)
+                }
+            }
+        """.trimIndent()
         textArea.tabSize = 4
         textArea.tabsEmulated = true
         updateView(debugger.checkpoints.last()!!.snapshot)
@@ -136,7 +189,7 @@ class CustomView(debugger: Debugger) : AbstractView(debugger) {
         scriptEngine.eval(textArea.text, bindings)*/
 
         panel.currentState = currentState
-        panel.script = textArea.text
+        //panel.script = "import java.awt.Color\nval g2 = g as java.awt.Graphics2D\n" + textArea.text // TODO: When catching exceptions we should shift the line number with 1
         panel.repaint()
     }
 

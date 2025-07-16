@@ -1,7 +1,7 @@
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.2.0"
     application
 }
 
@@ -32,6 +32,11 @@ dependencies {
 
     // Scripting engine for custom views
     implementation("org.openjdk.nashorn:nashorn-core:15.6")
+
+    implementation("org.jetbrains.kotlin:kotlin-scripting-common")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-dependencies")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:2.2.0")
 }
 
 tasks.test {
