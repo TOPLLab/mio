@@ -141,7 +141,7 @@ class InteractiveDebugger(
             updateEnabledButtons()
             updatePcLabel()
         }
-        stepBackButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-back.svg"))
+        stepBackButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-back-instruction.svg"))
         stepBackButton.addActionListener {
             println("Step back")
             //debugger.stepBack()
@@ -149,14 +149,14 @@ class InteractiveDebugger(
             updateStepBackButton()
             updatePcLabel()
         }
-        stepOverButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-over.svg"))
+        stepOverButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-over-instruction.svg"))
         stepOverButton.addActionListener {
             println("Step over")
             debugger.stepOver()
             updateStepBackButton()
             updatePcLabel()
         }
-        stepIntoButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-into.svg"))
+        stepIntoButton.icon = FlatSVGIcon(javaClass.getResource("/debug-step-into-instruction.svg"))
         stepIntoButton.addActionListener {
             println("Step into")
             debugger.stepInto()
